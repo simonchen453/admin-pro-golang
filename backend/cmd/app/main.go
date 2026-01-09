@@ -23,6 +23,28 @@ import (
 	"admin-pro/internal/usecase"
 )
 
+// @title Admin Pro Golang API
+// @version 1.0
+// @description 基于 Clean Architecture 的企业级后台管理系统 API
+// @termsOfService http://swagger.io/terms/
+
+// @contact.name API Support
+// @contact.email simonchen453@gmail.com
+
+// @license.name MIT
+// @license.url https://opensource.org/licenses/MIT
+
+// @host localhost:8080
+// @BasePath /
+// @schemes http https
+
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+// @description Type "Bearer" followed by a space and JWT token.
+
+
+
 func main() {
 	// 1. 加载配置 (Load Config)
 	// 读取 config.yaml 文件，包含数据库连接、端口等信息

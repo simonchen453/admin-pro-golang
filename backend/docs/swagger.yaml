@@ -1,4 +1,697 @@
+basePath: /
+definitions:
+  admin-pro_internal_domain_entity.Config:
+    properties:
+      createdBy:
+        type: string
+      createdDate:
+        type: string
+      id:
+        type: string
+      isSystem:
+        description: 1=Yes 0=No
+        type: integer
+      key:
+        type: string
+      name:
+        type: string
+      remark:
+        type: string
+      updatedBy:
+        type: string
+      updatedDate:
+        type: string
+      value:
+        type: string
+    type: object
+  admin-pro_internal_domain_entity.Dept:
+    properties:
+      children:
+        items:
+          $ref: '#/definitions/admin-pro_internal_domain_entity.Dept'
+        type: array
+      createdBy:
+        type: string
+      createdDate:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      leader:
+        type: string
+      name:
+        type: string
+      orderNum:
+        type: integer
+      parentId:
+        type: string
+      phone:
+        type: string
+      status:
+        type: string
+      updatedBy:
+        type: string
+      updatedDate:
+        type: string
+    type: object
+  admin-pro_internal_domain_entity.Job:
+    properties:
+      beanName:
+        type: string
+      createdTime:
+        type: string
+      cronExpression:
+        type: string
+      id:
+        type: string
+      methodName:
+        type: string
+      params:
+        type: string
+      remark:
+        type: string
+      status:
+        description: 0:正常 1:暂停
+        type: integer
+    type: object
+  admin-pro_internal_domain_entity.Notice:
+    properties:
+      content:
+        type: string
+      createdBy:
+        type: string
+      createdDate:
+        type: string
+      endTime:
+        type: string
+      id:
+        type: string
+      startTime:
+        type: string
+      title:
+        type: string
+      updatedBy:
+        type: string
+      updatedDate:
+        type: string
+      userDomain:
+        type: string
+    type: object
+  admin-pro_internal_domain_entity.Post:
+    properties:
+      code:
+        type: string
+      createdBy:
+        type: string
+      createdDate:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      remark:
+        type: string
+      sort:
+        type: integer
+      status:
+        type: string
+      updatedBy:
+        type: string
+      updatedDate:
+        type: string
+    type: object
+  admin-pro_pkg_response.Response:
+    properties:
+      data: {}
+      message:
+        type: string
+      restCode:
+        type: string
+    type: object
+host: localhost:8080
 info:
-  contact: {}
-paths: {}
+  contact:
+    email: simonchen453@gmail.com
+    name: API Support
+  description: 基于 Clean Architecture 的企业级后台管理系统 API
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  termsOfService: http://swagger.io/terms/
+  title: Admin Pro Golang API
+  version: "1.0"
+paths:
+  /api/v1/generator/batchGenCode:
+    get:
+      parameters:
+      - description: Table Names (comma separated)
+        in: query
+        name: tables
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: file
+      summary: Batch generate code
+      tags:
+      - generator
+  /api/v1/generator/list:
+    get:
+      parameters:
+      - description: Table Name
+        in: query
+        name: tableName
+        type: string
+      - description: Page Number
+        in: query
+        name: pageNo
+        type: integer
+      - description: Page Size
+        in: query
+        name: pageSize
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/admin-pro_pkg_response.Response'
+      summary: Get table list
+      tags:
+      - generator
+  /api/v1/job:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Job Info
+        in: body
+        name: job
+        required: true
+        schema:
+          $ref: '#/definitions/admin-pro_internal_domain_entity.Job'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/admin-pro_pkg_response.Response'
+      summary: Add job
+      tags:
+      - job
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Job Info
+        in: body
+        name: job
+        required: true
+        schema:
+          $ref: '#/definitions/admin-pro_internal_domain_entity.Job'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/admin-pro_pkg_response.Response'
+      summary: Update job
+      tags:
+      - job
+  /api/v1/job/{id}:
+    delete:
+      parameters:
+      - description: Job ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/admin-pro_pkg_response.Response'
+      summary: Delete job
+      tags:
+      - job
+    get:
+      parameters:
+      - description: Job ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/admin-pro_pkg_response.Response'
+      summary: Get job info
+      tags:
+      - job
+  /api/v1/job/list:
+    get:
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/admin-pro_pkg_response.Response'
+      summary: Get job list
+      tags:
+      - job
+  /api/v1/job/log/{id}:
+    get:
+      parameters:
+      - description: Job Log ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/admin-pro_pkg_response.Response'
+      summary: Get job log info
+      tags:
+      - job
+  /api/v1/job/log/list:
+    get:
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/admin-pro_pkg_response.Response'
+      summary: Get job log list
+      tags:
+      - job
+  /api/v1/monitor/online/{id}:
+    delete:
+      parameters:
+      - description: Session ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/admin-pro_pkg_response.Response'
+      summary: Force logout session
+      tags:
+      - monitor
+  /api/v1/monitor/online/list:
+    get:
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/admin-pro_pkg_response.Response'
+      summary: Get online sessions
+      tags:
+      - monitor
+  /api/v1/monitor/server:
+    get:
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/admin-pro_pkg_response.Response'
+      summary: Get server info
+      tags:
+      - monitor
+  /api/v1/system/config:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Config Info
+        in: body
+        name: config
+        required: true
+        schema:
+          $ref: '#/definitions/admin-pro_internal_domain_entity.Config'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/admin-pro_pkg_response.Response'
+      summary: Add config
+      tags:
+      - system/config
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Config Info
+        in: body
+        name: config
+        required: true
+        schema:
+          $ref: '#/definitions/admin-pro_internal_domain_entity.Config'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/admin-pro_pkg_response.Response'
+      summary: Update config
+      tags:
+      - system/config
+  /api/v1/system/config/{id}:
+    delete:
+      parameters:
+      - description: Config ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/admin-pro_pkg_response.Response'
+      summary: Delete config
+      tags:
+      - system/config
+    get:
+      parameters:
+      - description: Config ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/admin-pro_pkg_response.Response'
+      summary: Get config info
+      tags:
+      - system/config
+  /api/v1/system/config/key/{key}:
+    get:
+      parameters:
+      - description: Config Key
+        in: path
+        name: key
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/admin-pro_pkg_response.Response'
+      summary: Get config by key
+      tags:
+      - system/config
+  /api/v1/system/config/list:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/admin-pro_pkg_response.Response'
+      summary: Get config list
+      tags:
+      - system/config
+  /api/v1/system/dept:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Dept Info
+        in: body
+        name: dept
+        required: true
+        schema:
+          $ref: '#/definitions/admin-pro_internal_domain_entity.Dept'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/admin-pro_pkg_response.Response'
+      summary: Add dept
+      tags:
+      - system/dept
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Dept Info
+        in: body
+        name: dept
+        required: true
+        schema:
+          $ref: '#/definitions/admin-pro_internal_domain_entity.Dept'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/admin-pro_pkg_response.Response'
+      summary: Update dept
+      tags:
+      - system/dept
+  /api/v1/system/dept/{id}:
+    delete:
+      parameters:
+      - description: Dept ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/admin-pro_pkg_response.Response'
+      summary: Delete dept
+      tags:
+      - system/dept
+    get:
+      parameters:
+      - description: Dept ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/admin-pro_pkg_response.Response'
+      summary: Get dept info
+      tags:
+      - system/dept
+  /api/v1/system/dept/list:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/admin-pro_pkg_response.Response'
+      summary: Get dept list
+      tags:
+      - system/dept
+  /api/v1/system/notice:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Notice Info
+        in: body
+        name: notice
+        required: true
+        schema:
+          $ref: '#/definitions/admin-pro_internal_domain_entity.Notice'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/admin-pro_pkg_response.Response'
+      summary: Add notice
+      tags:
+      - system/notice
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Notice Info
+        in: body
+        name: notice
+        required: true
+        schema:
+          $ref: '#/definitions/admin-pro_internal_domain_entity.Notice'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/admin-pro_pkg_response.Response'
+      summary: Update notice
+      tags:
+      - system/notice
+  /api/v1/system/notice/{id}:
+    delete:
+      parameters:
+      - description: Notice ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/admin-pro_pkg_response.Response'
+      summary: Delete notice
+      tags:
+      - system/notice
+    get:
+      parameters:
+      - description: Notice ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/admin-pro_pkg_response.Response'
+      summary: Get notice info
+      tags:
+      - system/notice
+  /api/v1/system/notice/list:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/admin-pro_pkg_response.Response'
+      summary: Get notice list
+      tags:
+      - system/notice
+  /api/v1/system/post:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Post Info
+        in: body
+        name: post
+        required: true
+        schema:
+          $ref: '#/definitions/admin-pro_internal_domain_entity.Post'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/admin-pro_pkg_response.Response'
+      summary: Add post
+      tags:
+      - system/post
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Post Info
+        in: body
+        name: post
+        required: true
+        schema:
+          $ref: '#/definitions/admin-pro_internal_domain_entity.Post'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/admin-pro_pkg_response.Response'
+      summary: Update post
+      tags:
+      - system/post
+  /api/v1/system/post/{id}:
+    delete:
+      parameters:
+      - description: Post ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/admin-pro_pkg_response.Response'
+      summary: Delete post
+      tags:
+      - system/post
+    get:
+      parameters:
+      - description: Post ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/admin-pro_pkg_response.Response'
+      summary: Get post info
+      tags:
+      - system/post
+  /api/v1/system/post/list:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/admin-pro_pkg_response.Response'
+      summary: Get post list
+      tags:
+      - system/post
+schemes:
+- http
+- https
+securityDefinitions:
+  BearerAuth:
+    description: Type "Bearer" followed by a space and JWT token.
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

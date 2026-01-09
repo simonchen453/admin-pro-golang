@@ -9,22 +9,1084 @@ const docTemplate = `{
     "info": {
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
-        "contact": {},
+        "termsOfService": "http://swagger.io/terms/",
+        "contact": {
+            "name": "API Support",
+            "email": "simonchen453@gmail.com"
+        },
+        "license": {
+            "name": "MIT",
+            "url": "https://opensource.org/licenses/MIT"
+        },
         "version": "{{.Version}}"
     },
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
-    "paths": {}
+    "paths": {
+        "/api/v1/generator/batchGenCode": {
+            "get": {
+                "tags": [
+                    "generator"
+                ],
+                "summary": "Batch generate code",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Table Names (comma separated)",
+                        "name": "tables",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "file"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/generator/list": {
+            "get": {
+                "tags": [
+                    "generator"
+                ],
+                "summary": "Get table list",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Table Name",
+                        "name": "tableName",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page Number",
+                        "name": "pageNo",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page Size",
+                        "name": "pageSize",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/admin-pro_pkg_response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/job": {
+            "put": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "job"
+                ],
+                "summary": "Update job",
+                "parameters": [
+                    {
+                        "description": "Job Info",
+                        "name": "job",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/admin-pro_internal_domain_entity.Job"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/admin-pro_pkg_response.Response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "job"
+                ],
+                "summary": "Add job",
+                "parameters": [
+                    {
+                        "description": "Job Info",
+                        "name": "job",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/admin-pro_internal_domain_entity.Job"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/admin-pro_pkg_response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/job/list": {
+            "get": {
+                "tags": [
+                    "job"
+                ],
+                "summary": "Get job list",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/admin-pro_pkg_response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/job/log/list": {
+            "get": {
+                "tags": [
+                    "job"
+                ],
+                "summary": "Get job log list",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/admin-pro_pkg_response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/job/log/{id}": {
+            "get": {
+                "tags": [
+                    "job"
+                ],
+                "summary": "Get job log info",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Job Log ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/admin-pro_pkg_response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/job/{id}": {
+            "get": {
+                "tags": [
+                    "job"
+                ],
+                "summary": "Get job info",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Job ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/admin-pro_pkg_response.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "job"
+                ],
+                "summary": "Delete job",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Job ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/admin-pro_pkg_response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/monitor/online/list": {
+            "get": {
+                "tags": [
+                    "monitor"
+                ],
+                "summary": "Get online sessions",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/admin-pro_pkg_response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/monitor/online/{id}": {
+            "delete": {
+                "tags": [
+                    "monitor"
+                ],
+                "summary": "Force logout session",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/admin-pro_pkg_response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/monitor/server": {
+            "get": {
+                "tags": [
+                    "monitor"
+                ],
+                "summary": "Get server info",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/admin-pro_pkg_response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/system/config": {
+            "put": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "system/config"
+                ],
+                "summary": "Update config",
+                "parameters": [
+                    {
+                        "description": "Config Info",
+                        "name": "config",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/admin-pro_internal_domain_entity.Config"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/admin-pro_pkg_response.Response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "system/config"
+                ],
+                "summary": "Add config",
+                "parameters": [
+                    {
+                        "description": "Config Info",
+                        "name": "config",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/admin-pro_internal_domain_entity.Config"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/admin-pro_pkg_response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/system/config/key/{key}": {
+            "get": {
+                "tags": [
+                    "system/config"
+                ],
+                "summary": "Get config by key",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Config Key",
+                        "name": "key",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/admin-pro_pkg_response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/system/config/list": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "system/config"
+                ],
+                "summary": "Get config list",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/admin-pro_pkg_response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/system/config/{id}": {
+            "get": {
+                "tags": [
+                    "system/config"
+                ],
+                "summary": "Get config info",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Config ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/admin-pro_pkg_response.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "system/config"
+                ],
+                "summary": "Delete config",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Config ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/admin-pro_pkg_response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/system/dept": {
+            "put": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "system/dept"
+                ],
+                "summary": "Update dept",
+                "parameters": [
+                    {
+                        "description": "Dept Info",
+                        "name": "dept",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/admin-pro_internal_domain_entity.Dept"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/admin-pro_pkg_response.Response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "system/dept"
+                ],
+                "summary": "Add dept",
+                "parameters": [
+                    {
+                        "description": "Dept Info",
+                        "name": "dept",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/admin-pro_internal_domain_entity.Dept"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/admin-pro_pkg_response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/system/dept/list": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "system/dept"
+                ],
+                "summary": "Get dept list",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/admin-pro_pkg_response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/system/dept/{id}": {
+            "get": {
+                "tags": [
+                    "system/dept"
+                ],
+                "summary": "Get dept info",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Dept ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/admin-pro_pkg_response.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "system/dept"
+                ],
+                "summary": "Delete dept",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Dept ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/admin-pro_pkg_response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/system/notice": {
+            "put": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "system/notice"
+                ],
+                "summary": "Update notice",
+                "parameters": [
+                    {
+                        "description": "Notice Info",
+                        "name": "notice",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/admin-pro_internal_domain_entity.Notice"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/admin-pro_pkg_response.Response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "system/notice"
+                ],
+                "summary": "Add notice",
+                "parameters": [
+                    {
+                        "description": "Notice Info",
+                        "name": "notice",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/admin-pro_internal_domain_entity.Notice"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/admin-pro_pkg_response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/system/notice/list": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "system/notice"
+                ],
+                "summary": "Get notice list",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/admin-pro_pkg_response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/system/notice/{id}": {
+            "get": {
+                "tags": [
+                    "system/notice"
+                ],
+                "summary": "Get notice info",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Notice ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/admin-pro_pkg_response.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "system/notice"
+                ],
+                "summary": "Delete notice",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Notice ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/admin-pro_pkg_response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/system/post": {
+            "put": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "system/post"
+                ],
+                "summary": "Update post",
+                "parameters": [
+                    {
+                        "description": "Post Info",
+                        "name": "post",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/admin-pro_internal_domain_entity.Post"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/admin-pro_pkg_response.Response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "system/post"
+                ],
+                "summary": "Add post",
+                "parameters": [
+                    {
+                        "description": "Post Info",
+                        "name": "post",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/admin-pro_internal_domain_entity.Post"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/admin-pro_pkg_response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/system/post/list": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "system/post"
+                ],
+                "summary": "Get post list",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/admin-pro_pkg_response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/system/post/{id}": {
+            "get": {
+                "tags": [
+                    "system/post"
+                ],
+                "summary": "Get post info",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Post ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/admin-pro_pkg_response.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "system/post"
+                ],
+                "summary": "Delete post",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Post ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/admin-pro_pkg_response.Response"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "admin-pro_internal_domain_entity.Config": {
+            "type": "object",
+            "properties": {
+                "createdBy": {
+                    "type": "string"
+                },
+                "createdDate": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "isSystem": {
+                    "description": "1=Yes 0=No",
+                    "type": "integer"
+                },
+                "key": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "remark": {
+                    "type": "string"
+                },
+                "updatedBy": {
+                    "type": "string"
+                },
+                "updatedDate": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
+        "admin-pro_internal_domain_entity.Dept": {
+            "type": "object",
+            "properties": {
+                "children": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/admin-pro_internal_domain_entity.Dept"
+                    }
+                },
+                "createdBy": {
+                    "type": "string"
+                },
+                "createdDate": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "leader": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "orderNum": {
+                    "type": "integer"
+                },
+                "parentId": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "updatedBy": {
+                    "type": "string"
+                },
+                "updatedDate": {
+                    "type": "string"
+                }
+            }
+        },
+        "admin-pro_internal_domain_entity.Job": {
+            "type": "object",
+            "properties": {
+                "beanName": {
+                    "type": "string"
+                },
+                "createdTime": {
+                    "type": "string"
+                },
+                "cronExpression": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "methodName": {
+                    "type": "string"
+                },
+                "params": {
+                    "type": "string"
+                },
+                "remark": {
+                    "type": "string"
+                },
+                "status": {
+                    "description": "0:正常 1:暂停",
+                    "type": "integer"
+                }
+            }
+        },
+        "admin-pro_internal_domain_entity.Notice": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "createdBy": {
+                    "type": "string"
+                },
+                "createdDate": {
+                    "type": "string"
+                },
+                "endTime": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "startTime": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "updatedBy": {
+                    "type": "string"
+                },
+                "updatedDate": {
+                    "type": "string"
+                },
+                "userDomain": {
+                    "type": "string"
+                }
+            }
+        },
+        "admin-pro_internal_domain_entity.Post": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "createdBy": {
+                    "type": "string"
+                },
+                "createdDate": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "remark": {
+                    "type": "string"
+                },
+                "sort": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "updatedBy": {
+                    "type": "string"
+                },
+                "updatedDate": {
+                    "type": "string"
+                }
+            }
+        },
+        "admin-pro_pkg_response.Response": {
+            "type": "object",
+            "properties": {
+                "data": {},
+                "message": {
+                    "type": "string"
+                },
+                "restCode": {
+                    "type": "string"
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "description": "Type \"Bearer\" followed by a space and JWT token.",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    }
 }`
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "",
-	Host:             "",
-	BasePath:         "",
-	Schemes:          []string{},
-	Title:            "",
-	Description:      "",
+	Version:          "1.0",
+	Host:             "localhost:8080",
+	BasePath:         "/",
+	Schemes:          []string{"http", "https"},
+	Title:            "Admin Pro Golang API",
+	Description:      "基于 Clean Architecture 的企业级后台管理系统 API",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",
