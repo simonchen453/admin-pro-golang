@@ -22,10 +22,10 @@
 
 ```mermaid
 graph TD
-    Delivery[Delivery Layer (HTTP Handlers)] --> Usecase[Usecase Layer (Business Logic)]
-    Usecase --> Repository[Repository Interface (Domain)]
-    Infrastructure[Infrastructure Layer (DB Implementation)] -.-> Repository
-    Infrastructure --> DB[(Database)]
+    Delivery["Delivery Layer (HTTP Handlers)"] --> Usecase["Usecase Layer (Business Logic)"]
+    Usecase --> Repository["Repository Interface (Domain)"]
+    Infrastructure["Infrastructure Layer (DB Implementation)"] -.-> Repository
+    Infrastructure --> DB[("Database")]
 ```
 
 ### 2.1 目录结构说明
