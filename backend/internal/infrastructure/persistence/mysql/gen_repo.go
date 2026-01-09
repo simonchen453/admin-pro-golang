@@ -2,7 +2,6 @@ package mysql
 
 import (
 	"context"
-	"fmt"
 
 	"gorm.io/gorm"
 	"admin-pro/internal/domain/entity"
@@ -21,24 +20,32 @@ func (r *genRepository) GetTableList(ctx context.Context, tableName string, page
 	var list []*entity.TableInfo
 	var count int64
 
-	// Count
-	sqlCounts := "SELECT count(*) FROM information_schema.tables WHERE table_schema = (SELECT DATABASE())"
+	// Count - 使用参数化查询防止 SQL 注入
+	sqlCount := "SELECT count(*) FROM information_schema.tables WHERE table_schema = (SELECT DATABASE())"
+	var args []interface{}
+	
 	if tableName != "" {
-		sqlCounts += fmt.Sprintf(" AND table_name LIKE '%%%s%%'", tableName)
+		sqlCount += " AND table_name LIKE ?"
+		args = append(args, "%"+tableName+"%")
 	}
-	if err := r.db.Raw(sqlCounts).Scan(&count).Error; err != nil {
+	
+	if err := r.db.WithContext(ctx).Raw(sqlCount, args...).Scan(&count).Error; err != nil {
 		return nil, 0, err
 	}
 
-	// List
+	// List - 使用参数化查询
 	offset := (pageNo - 1) * pageSize
 	sqlSelect := "SELECT table_name, table_comment, create_time FROM information_schema.tables WHERE table_schema = (SELECT DATABASE())"
+	var selectArgs []interface{}
+	
 	if tableName != "" {
-		sqlSelect += fmt.Sprintf(" AND table_name LIKE '%%%s%%'", tableName)
+		sqlSelect += " AND table_name LIKE ?"
+		selectArgs = append(selectArgs, "%"+tableName+"%")
 	}
-	sqlSelect += fmt.Sprintf(" LIMIT %d OFFSET %d", pageSize, offset)
+	sqlSelect += " LIMIT ? OFFSET ?"
+	selectArgs = append(selectArgs, pageSize, offset)
 
-	if err := r.db.WithContext(ctx).Raw(sqlSelect).Scan(&list).Error; err != nil {
+	if err := r.db.WithContext(ctx).Raw(sqlSelect, selectArgs...).Scan(&list).Error; err != nil {
 		return nil, 0, err
 	}
 

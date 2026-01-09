@@ -7,6 +7,7 @@ import (
 	"gorm.io/gorm"
 	"admin-pro/internal/domain/entity"
 	"admin-pro/internal/domain/repository"
+	"admin-pro/pkg/constants"
 )
 
 type deptRepository struct {
@@ -20,7 +21,7 @@ func NewDeptRepository(db *gorm.DB) repository.DeptRepository {
 func (r *deptRepository) GetList(ctx context.Context) ([]*entity.Dept, error) {
 	var depts []*entity.Dept
 	err := r.db.WithContext(ctx).
-		Where("col_status = ?", "active").
+		Where("col_status = ?", constants.StatusActive).
 		Order("col_order_num ASC").
 		Find(&depts).Error
 	return depts, err

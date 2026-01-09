@@ -1,7 +1,13 @@
 package main
 
 import (
+	"context"
 	"log"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
@@ -32,7 +38,7 @@ func main() {
 		log.Fatalf("Failed to init DB: %v", err)
 	}
 
-	// 3. 初始化 Repository 层 (Init Repositories)
+	// 3. 初始化 Repository层 (Init Repositories)
 	// Repository 负责直接操作数据库，实现了 Domain 层定义的接口
 	// 依赖注入：将数据库连接实例 db 注入到 Repository 中
 	userRepo := mysql.NewUserRepository(db)
@@ -84,10 +90,39 @@ func main() {
 	
 	// Swagger 文档路由
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	
+	// 健康检查端点
+	r.GET("/health", func(c *gin.Context) {
+		c.JSON(200, gin.H{"status": "ok"})
+	})
 
-	// 7. 启动服务 (Run)
-	log.Printf("Server starting on %s", cfg.Server.Port)
-	if err := r.Run(cfg.Server.Port); err != nil {
-		log.Fatalf("Server run failed: %v", err)
+	// 7. 启动服务 (Run) - 支持优雅关闭
+	srv := &http.Server{
+		Addr:    cfg.Server.Port,
+		Handler: r,
 	}
+
+	// 在 Goroutine 中启动服务器
+	go func() {
+		log.Printf("Server starting on %s", cfg.Server.Port)
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("Server listen failed: %v", err)
+		}
+	}()
+
+	// 等待中断信号以优雅地关闭服务器
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+	log.Println("Shutting down server...")
+
+	// 5 秒超时的 Context 用于优雅关闭
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	
+	if err := srv.Shutdown(ctx); err != nil {
+		log.Fatal("Server forced to shutdown:", err)
+	}
+
+	log.Println("Server exited")
 }

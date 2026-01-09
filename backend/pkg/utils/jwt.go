@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"golang.org/x/crypto/bcrypt"
 	"admin-pro/internal/config"
 )
 
@@ -50,13 +51,30 @@ func ParseToken(tokenString string, cfg *config.Config) (*Claims, error) {
 	return nil, errors.New("invalid token")
 }
 
-func EncryptPassword(password string) string {
-	hash := sha256.Sum256([]byte(password))
-	return hex.EncodeToString(hash[:])
+func EncryptPassword(password string) (string, error) {
+	bytes, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return "", err
+	}
+	return string(bytes), nil
 }
 
-// CheckPassword checks if the provided password matches the hash
-// In this legacy system, simple SHA256 is used (based on sample data)
+// CheckPassword 检查提供的密码是否与哈希匹配
+// 兼容旧系统：如果 hash 长度为 64（SHA256），则使用旧算法验证
 func CheckPassword(password, hash string) bool {
-	return EncryptPassword(password) == hash
+	// 兼容旧系统的 SHA256 哈希（长度为 64）
+	if len(hash) == 64 {
+		return checkPasswordLegacy(password, hash)
+	}
+	
+	// 使用 bcrypt 验证
+	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+	return err == nil
 }
+
+// checkPasswordLegacy 兼容旧系统的 SHA256 验证
+func checkPasswordLegacy(password, hash string) bool {
+	h := sha256.Sum256([]byte(password))
+	return hex.EncodeToString(h[:]) == hash
+}
+

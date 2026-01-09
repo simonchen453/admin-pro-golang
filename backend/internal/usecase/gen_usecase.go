@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"log"
 	"strings"
 
 	"admin-pro/internal/domain/entity"
@@ -33,25 +34,36 @@ func (u *genUsecase) GetTableList(ctx context.Context, tableName string, pageSiz
 func (u *genUsecase) GenCode(ctx context.Context, tableNames []string) ([]byte, error) {
 	buf := new(bytes.Buffer)
 	writer := zip.NewWriter(buf)
+	defer writer.Close()
 
 	for _, tableName := range tableNames {
 		// Get columns
 		cols, err := u.genRepo.GetTableColumns(ctx, tableName)
 		if err != nil {
-			continue // skip error
+			log.Printf("Failed to get columns for table %s: %v", tableName, err)
+			continue // skip error table
 		}
 		
 		// Simple template generation
 		// 1. Entity
 		entityCode := generateEntity(tableName, cols)
-		f, _ := writer.Create(fmt.Sprintf("%s/entity.go", tableName))
-		f.Write([]byte(entityCode))
+		f, err := writer.Create(fmt.Sprintf("%s/entity.go", tableName))
+		if err != nil {
+			return nil, fmt.Errorf("create zip entry for %s: %w", tableName, err)
+		}
+		
+		if _, err := f.Write([]byte(entityCode)); err != nil {
+			return nil, fmt.Errorf("write to zip for %s: %w", tableName, err)
+		}
 
 		// 2. Repo
 		// TODO: Add more files
 	}
 
-	writer.Close()
+	if err := writer.Close(); err != nil {
+		return nil, fmt.Errorf("close zip writer: %w", err)
+	}
+	
 	return buf.Bytes(), nil
 }
 
