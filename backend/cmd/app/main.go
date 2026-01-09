@@ -43,8 +43,6 @@ import (
 // @name Authorization
 // @description Type "Bearer" followed by a space and JWT token.
 
-
-
 func main() {
 	// 1. 加载配置 (Load Config)
 	// 读取 config.yaml 文件，包含数据库连接、端口等信息
@@ -109,10 +107,10 @@ func main() {
 	v1.NewMonitorHandler(r, monitorUsecase, middleware.JWTAuth(cfg))
 	v1.NewJobHandler(r, jobUsecase, middleware.JWTAuth(cfg))
 	v1.NewGenHandler(r, genUsecase, middleware.JWTAuth(cfg))
-	
+
 	// Swagger 文档路由
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-	
+
 	// 健康检查端点
 	r.GET("/health", func(c *gin.Context) {
 		c.JSON(200, gin.H{"status": "ok"})
@@ -124,26 +122,39 @@ func main() {
 		Handler: r,
 	}
 
+	// 等待中断信号以优雅地关闭服务器
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+
 	// 在 Goroutine 中启动服务器
 	go func() {
 		log.Printf("Server starting on %s", cfg.Server.Port)
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Fatalf("Server listen failed: %v", err)
+			log.Printf("Server listen failed: %v", err)
+			// 通知主 goroutine 退出
+			quit <- syscall.SIGTERM
 		}
 	}()
 
-	// 等待中断信号以优雅地关闭服务器
-	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 	log.Println("Shutting down server...")
 
 	// 5 秒超时的 Context 用于优雅关闭
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	
+
 	if err := srv.Shutdown(ctx); err != nil {
-		log.Fatal("Server forced to shutdown:", err)
+		log.Printf("Server forced to shutdown: %v", err)
+	}
+
+	// 关闭数据库连接
+	sqlDB, err := db.DB()
+	if err == nil {
+		if err := sqlDB.Close(); err != nil {
+			log.Printf("Error closing database: %v", err)
+		} else {
+			log.Println("Database connection closed")
+		}
 	}
 
 	log.Println("Server exited")

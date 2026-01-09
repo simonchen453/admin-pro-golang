@@ -5,9 +5,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/gin-gonic/gin"
 	"admin-pro/internal/usecase"
 	"admin-pro/pkg/response"
+	"github.com/gin-gonic/gin"
 )
 
 type GenHandler struct {
@@ -37,8 +37,16 @@ func NewGenHandler(r *gin.Engine, uc usecase.GenUsecase, mw gin.HandlerFunc) {
 // @Router /api/v1/generator/list [get]
 func (h *GenHandler) List(c *gin.Context) {
 	tableName := c.Query("tableName")
-	pageNo, _ := strconv.Atoi(c.DefaultQuery("pageNo", "1"))
-	pageSize, _ := strconv.Atoi(c.DefaultQuery("pageSize", "10"))
+	pageNo, err := strconv.Atoi(c.DefaultQuery("pageNo", "1"))
+	if err != nil {
+		response.Fail(c, http.StatusBadRequest, "400", "invalid pageNo parameter")
+		return
+	}
+	pageSize, err := strconv.Atoi(c.DefaultQuery("pageSize", "10"))
+	if err != nil {
+		response.Fail(c, http.StatusBadRequest, "400", "invalid pageSize parameter")
+		return
+	}
 
 	list, count, err := h.genUsecase.GetTableList(c.Request.Context(), tableName, pageSize, pageNo)
 	if err != nil {
@@ -60,7 +68,7 @@ func (h *GenHandler) BatchGenCode(c *gin.Context) {
 		return
 	}
 	tables := strings.Split(tablesStr, ",")
-	
+
 	data, err := h.genUsecase.GenCode(c.Request.Context(), tables)
 	if err != nil {
 		response.Fail(c, http.StatusInternalServerError, "500", err.Error())

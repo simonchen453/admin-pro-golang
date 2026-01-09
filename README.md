@@ -7,14 +7,24 @@
 本项目采用 Go 语言开发，使用了 `Gin` 作为 Web 框架，`GORM` 作为 ORM 框架，并严格遵循整洁架构原则，将业务逻辑与外部依赖（如数据库、HTTP 框架）解耦。
 
 ### 技术栈
-- **语言**: Go (Golang)
-- **Web 框架**: Gin
-- **数据库 ORM**: GORM (MySQL)
-- **鉴权**: JWT (JSON Web Token)
-- **文档**: Swagger
-- **配置**: Viper
-- **日志**: Zap
-- **系统监控**: gopsutil
+- **语言**: Go (Golang) 1.21+
+- **Web 框架**: Gin v1.11.0
+- **数据库 ORM**: GORM v1.31.1 (MySQL)
+- **鉴权**: JWT (JSON Web Token) v5.3.0
+- **密码加密**: Bcrypt
+- **文档**: Swagger v1.16.6
+- **配置**: Viper v1.21.0 (支持环境变量)
+- **日志**: 结构化日志
+- **系统监控**: gopsutil v3.24.5
+
+### 最近改进
+- ✅ 支持环境变量配置敏感信息
+- ✅ 优化错误处理和错误包装
+- ✅ 添加结构化日志和请求日志中间件
+- ✅ 优化数据库连接池配置
+- ✅ 改进 CORS 安全配置
+- ✅ 添加 Docker 支持
+- ✅ 添加单元测试框架
 
 ## 2. 架构设计 (Architecture)
 
@@ -77,19 +87,67 @@ backend/
 ## 3. 快速开始
 
 ### 3.1 环境要求
-- Go 1.18+
-- MySQL 5.7+
+- Go 1.21+
+- MySQL 5.7+ 或 Docker
 
-### 3.2 运行步骤
+### 3.2 配置
 
-1.  **配置数据库**: 修改 `backend/config.yaml`，填入你的 MySQL 地址和账号密码。
-2.  **进入目录**: `cd backend`
-3.  **下载依赖**: `go mod tidy`
-4.  **运行程序**: `go run cmd/app/main.go`
-    -   或者编译后运行: `go build -o server cmd/app/main.go && ./server`
+创建 `.env` 文件（参考 `.env.example`）：
 
-### 3.3 访问接口
-- 打开浏览器访问 Swagger 文档: `http://localhost:8080/swagger/index.html`
+```bash
+# Server Configuration
+SERVER_PORT=:8080
+SERVER_MODE=debug
+
+# Database Configuration
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_USER=root
+DB_PASSWORD=your_secure_password_here
+DB_NAME=adminpro
+
+# JWT Configuration
+JWT_SECRET=your_jwt_secret_key_change_this_in_production
+JWT_EXPIRE=24
+```
+
+### 3.3 运行步骤
+
+#### 方式一：直接运行
+
+1. **配置数据库**: 修改 `backend/config.yaml` 或使用环境变量
+2. **进入目录**: `cd backend`
+3. **下载依赖**: `go mod tidy`
+4. **运行程序**: `go run cmd/app/main.go`
+   - 或者使用 Makefile: `make run`
+   - 或者编译后运行: `make build && ./bin/admin-pro`
+
+#### 方式二：使用 Docker
+
+```bash
+# 启动所有服务（包括 MySQL）
+docker-compose up -d
+
+# 查看日志
+docker-compose logs -f backend
+
+# 停止服务
+docker-compose down
+```
+
+### 3.4 测试
+
+```bash
+# 运行所有测试
+make test
+
+# 运行测试并生成覆盖率报告
+make test-coverage
+```
+
+### 3.5 访问接口
+- API 文档: `http://localhost:8080/swagger/index.html`
+- 健康检查: `http://localhost:8080/health`
 
 ## 4. 关键代码流程解析 (以用户列表为例)
 

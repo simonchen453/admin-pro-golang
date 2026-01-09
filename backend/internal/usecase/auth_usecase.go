@@ -2,11 +2,11 @@ package usecase
 
 import (
 	"context"
-	"errors"
 
 	"admin-pro/internal/config"
 	"admin-pro/internal/domain/entity"
 	"admin-pro/internal/domain/repository"
+	apperrors "admin-pro/pkg/errors"
 	"admin-pro/pkg/utils"
 )
 
@@ -29,19 +29,19 @@ func NewAuthUsecase(userRepo repository.UserRepository, cfg *config.Config) Auth
 func (u *authUsecase) Login(ctx context.Context, loginName, password string) (string, *entity.User, error) {
 	user, err := u.userRepo.GetByLoginName(ctx, loginName)
 	if err != nil {
-		return "", nil, err
+		return "", nil, apperrors.Wrap(err, "failed to get user by login name")
 	}
 	if user == nil {
-		return "", nil, errors.New("user not found")
+		return "", nil, apperrors.ErrUserNotFound
 	}
 
 	if !utils.CheckPassword(password, user.Password) {
-		return "", nil, errors.New("invalid password")
+		return "", nil, apperrors.ErrInvalidPassword
 	}
 
 	token, err := utils.GenerateToken(user.UserID, user.UserDomain, user.LoginName, u.cfg)
 	if err != nil {
-		return "", nil, err
+		return "", nil, apperrors.Wrap(err, "failed to generate token")
 	}
 
 	return token, user, nil
