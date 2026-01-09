@@ -1,0 +1,1 @@
+import{j as t}from"./index-LjbMJwYw.js";import{N as r,B as s}from"./antd-DOQ5lzi0.js";import{u as o}from"./router-CzFLE6V4.js";import"./vendor-_g6xLlVr.js";import"./utils-DwQxXc4q.js";function i(){const i=o();return t.jsx(r,{status:"404",title:"404",subTitle:"抱歉，您访问的页面不存在",extra:t.jsx(s,{type:"primary",onClick:()=>i("/"),children:"返回首页"})})}export{i as default};

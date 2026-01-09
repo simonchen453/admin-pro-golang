@@ -1,0 +1,1 @@
+import{r as s}from"./index-LjbMJwYw.js";const a=a=>s.post("/admin/syslog/list",a),e=a=>s.get(`/admin/syslog/view?id=${a}`),d=a=>s.delete("/admin/syslog/deletemany",{params:{ids:a}});export{e as a,d,a as g};

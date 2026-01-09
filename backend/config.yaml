@@ -1,0 +1,14 @@
+server:
+  port: ":8080"
+  mode: "debug"
+
+database:
+  host: "127.0.0.1"
+  port: "3306"
+  user: "root"
+  password: "password"
+  name: "adminpro"
+
+jwt:
+  secret: "your_jwt_secret_key"
+  expire: 24

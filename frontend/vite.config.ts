@@ -1,0 +1,65 @@
+import { defineConfig, loadEnv } from 'vite'
+import react from '@vitejs/plugin-react'
+import { resolve } from 'path'
+
+// https://vite.dev/config/
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), '')
+  // 如果是生产构建，使用带斜杠的占位符，确保替换时能精确匹配
+  const base = mode === 'production' ? '/__VITE_BASE_URL_PLACEHOLDER__/' : (env.VITE_BASE_URL || '/adminpro/')
+
+  return {
+    base: base,
+    plugins: [react()],
+    resolve: {
+      alias: {
+        '@': resolve(__dirname, 'src'),
+      },
+    },
+    build: {
+      target: 'es2015',
+      outDir: 'dist',
+      assetsDir: 'assets',
+      sourcemap: false,
+      minify: 'terser',
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            vendor: ['react', 'react-dom'],
+            antd: ['antd', '@ant-design/icons'],
+            router: ['react-router-dom'],
+            utils: ['axios', 'zustand'],
+          },
+        },
+      },
+      chunkSizeWarningLimit: 1000,
+    },
+    server: {
+      port: 3000,
+      open: true,
+      cors: true,
+      host: '0.0.0.0',
+      proxy: {
+        '/api': {
+          target: 'http://127.0.0.1:8080',
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/api/, '/api/v1'),
+          configure: (proxy, _options) => {
+            proxy.on('error', (err, _req, _res) => {
+              console.log('proxy error', err);
+            });
+            proxy.on('proxyReq', (_proxyReq, req, _res) => {
+              console.log('Sending Request to the Target:', req.method, req.url);
+            });
+            proxy.on('proxyRes', (proxyRes, req, _res) => {
+              console.log('Received Response from the Target:', proxyRes.statusCode, req.url);
+            });
+          },
+        },
+      },
+    },
+    optimizeDeps: {
+      include: ['react', 'react-dom', 'antd', '@ant-design/icons'],
+    },
+  }
+})
