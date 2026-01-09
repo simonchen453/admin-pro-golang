@@ -1,23 +1,37 @@
-# Golang
-# Binaries
+# Binaries for programs and plugins
 *.exe
 *.exe~
 *.dll
 *.so
 *.dylib
-server
-*.test
-*.out
 
-# Go workspace file
-go.work
-go.work.sum
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool
+*.out
 
 # Dependency directories
 vendor/
 
-# Go build cache
-.cache/
+# Go workspace file
+go.work
+
+# Build output
+main
+server
+/bin/
+/dist/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+*.env
+
+# Configuration files with sensitive data
+config.yaml
+config.*.yaml
 
 # IDE
 .idea/
@@ -27,66 +41,15 @@ vendor/
 *~
 .DS_Store
 
-# Environment files
-*.env
-*.env.local
-!.env.development
-backend/config.yaml
-
 # Logs
 *.log
-logs/
-backend/logs/
+/logs/
 
-# Test coverage
-*.cover
-*.coverprofile
-coverage.txt
-
-# Node.js / Frontend
-frontend/node_modules/
-frontend/dist/
-frontend/.pnpm-store/
-frontend/.vite/
-frontend/.turbo/
-frontend/build/
-
-# Package manager
-frontend/.pnpm-debug.log*
-frontend/.yarn-integrity
-frontend/.yarn/
-frontend/.pnp
-frontend/.pnp.js
-
-# Testing
-frontend/coverage/
-
-# Production
-frontend/dist-ssr/
-
-# Misc
+# OS
+Thumbs.db
 .DS_Store
-*.pem
-.env*.local
 
-# Debug
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
-
-# Editor directories
-.vscode/*
-!.vscode/extensions.json
-.idea
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-
-# Temporary files
-*.tmp
-*.temp
-.cache/
+# Coverage
+coverage.txt
+coverage.html
+*.cover
