@@ -104,19 +104,24 @@ func main() {
 	// 6. 注册路由 Handler (Init Handlers)
 	// Handler 负责处理 HTTP 请求，解析参数，调用 Usecase，返回 JSON
 	// 依赖注入：将 Usecase 实例注入到 Handler 中
+
+	// 创建中间件实例
+	authMw := middleware.JWTAuth(cfg, userUsecase) // JWT 认证 + 权限加载
+	permMw := middleware.RequirePermission         // 权限检查中间件生成器
+
 	v1.NewAuthHandler(r, authUsecase, cfg)
-	v1.NewUserHandler(r, userUsecase, middleware.JWTAuth(cfg)) // 需要 JWT 认证
-	v1.NewRoleHandler(r, roleUsecase, middleware.JWTAuth(cfg))
-	v1.NewMenuHandler(r, menuUsecase, middleware.JWTAuth(cfg))
-	v1.NewDeptHandler(r, deptUsecase, middleware.JWTAuth(cfg))
-	v1.NewPostHandler(r, postUsecase, middleware.JWTAuth(cfg))
-	v1.NewDictHandler(r, dictUsecase, middleware.JWTAuth(cfg))
-	v1.NewConfigHandler(r, configUsecase, middleware.JWTAuth(cfg))
-	v1.NewNoticeHandler(r, noticeUsecase, middleware.JWTAuth(cfg))
-	v1.NewLogHandler(r, logUsecase, middleware.JWTAuth(cfg))
-	v1.NewMonitorHandler(r, monitorUsecase, middleware.JWTAuth(cfg))
-	v1.NewJobHandler(r, jobUsecase, middleware.JWTAuth(cfg))
-	v1.NewGenHandler(r, genUsecase, middleware.JWTAuth(cfg))
+	v1.NewUserHandler(r, userUsecase, authMw, permMw)
+	v1.NewRoleHandler(r, roleUsecase, authMw, permMw)
+	v1.NewMenuHandler(r, menuUsecase, authMw, permMw)
+	v1.NewDeptHandler(r, deptUsecase, authMw, permMw)
+	v1.NewPostHandler(r, postUsecase, authMw, permMw)
+	v1.NewDictHandler(r, dictUsecase, authMw, permMw)
+	v1.NewConfigHandler(r, configUsecase, authMw, permMw)
+	v1.NewNoticeHandler(r, noticeUsecase, authMw, permMw)
+	v1.NewLogHandler(r, logUsecase, authMw, permMw)
+	v1.NewMonitorHandler(r, monitorUsecase, authMw, permMw)
+	v1.NewJobHandler(r, jobUsecase, authMw, permMw)
+	v1.NewGenHandler(r, genUsecase, authMw, permMw)
 
 	// Swagger 文档路由
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))

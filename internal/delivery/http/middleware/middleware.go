@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"admin-pro/internal/config"
+	"admin-pro/internal/usecase"
 	"admin-pro/pkg/response"
 	"admin-pro/pkg/utils"
 	"github.com/gin-gonic/gin"
@@ -59,7 +60,9 @@ func isOriginAllowed(origin string) bool {
 	return false
 }
 
-func JWTAuth(cfg *config.Config) gin.HandlerFunc {
+// JWTAuth JWT 认证中间件（增强版）
+// 验证 Token 并加载用户权限到 Context
+func JWTAuth(cfg *config.Config, userUsecase usecase.UserUsecase) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// 1. Check Cookie
 		tokenString, err := c.Cookie("admin-pro-token")
@@ -84,9 +87,84 @@ func JWTAuth(cfg *config.Config) gin.HandlerFunc {
 			return
 		}
 
+		// 3. 加载用户信息和权限（新增）
+		userInfo, err := userUsecase.GetUserInfo(c.Request.Context(), claims.UserID)
+		if err != nil || userInfo == nil {
+			response.Fail(c, http.StatusOK, "401", "用户信息获取失败")
+			c.Abort()
+			return
+		}
+
+		// 4. 存入 Context
 		c.Set("userID", claims.UserID)
 		c.Set("userDomain", claims.UserDomain)
 		c.Set("loginName", claims.LoginName)
+		c.Set("permissions", userInfo.Permissions) // 存入权限列表
+		c.Set("roles", userInfo.Roles)             // 存入角色列表
 		c.Next()
 	}
+}
+
+// RequirePermission 权限检查中间件
+// 检查用户是否拥有指定权限，支持超级管理员通配符
+func RequirePermission(requiredPermission string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// 1. 获取用户权限列表
+		permissionsVal, exists := c.Get("permissions")
+		if !exists {
+			response.Fail(c, http.StatusForbidden, "403", "无权限信息，请重新登录")
+			c.Abort()
+			return
+		}
+
+		permissions, ok := permissionsVal.([]string)
+		if !ok {
+			response.Fail(c, http.StatusForbidden, "403", "权限信息格式错误")
+			c.Abort()
+			return
+		}
+
+		// 2. 检查是否拥有所需权限
+		if hasPermission(permissions, requiredPermission) {
+			c.Next()
+			return
+		}
+
+		// 3. 权限不足，拒绝访问
+		response.Fail(c, http.StatusForbidden, "403", "权限不足")
+		c.Abort()
+	}
+}
+
+// hasPermission 检查权限列表中是否包含所需权限
+// 支持通配符：*:*:* (超级管理员), system:*:* (系统模块所有权限), system:dept:* (部门所有权限)
+func hasPermission(permissions []string, required string) bool {
+	for _, perm := range permissions {
+		// 完全匹配
+		if perm == required {
+			return true
+		}
+
+		// 超级管理员通配符
+		if perm == "*:*:*" {
+			return true
+		}
+
+		// 模块级通配符 (如: system:*:*)
+		if strings.HasSuffix(perm, ":*:*") {
+			module := strings.Split(perm, ":")[0]
+			if strings.HasPrefix(required, module+":") {
+				return true
+			}
+		}
+
+		// 资源级通配符 (如: system:dept:*)
+		if strings.HasSuffix(perm, ":*") {
+			prefix := strings.TrimSuffix(perm, "*")
+			if strings.HasPrefix(required, prefix) {
+				return true
+			}
+		}
+	}
+	return false
 }

@@ -14,18 +14,18 @@ type DeptHandler struct {
 	deptUsecase usecase.DeptUsecase
 }
 
-func NewDeptHandler(r *gin.Engine, uc usecase.DeptUsecase, mw gin.HandlerFunc) {
+func NewDeptHandler(r *gin.Engine, uc usecase.DeptUsecase, authMw gin.HandlerFunc, permMw func(string) gin.HandlerFunc) {
 	handler := &DeptHandler{
 		deptUsecase: uc,
 	}
 	g := r.Group("/api/v1/system/dept")
-	g.Use(mw)
+	g.Use(authMw) // JWT 认证（会加载权限）
 	{
-		g.GET("/list", handler.List)
-		g.GET("/:id", handler.Get)
-		g.POST("", handler.Add)
-		g.PUT("", handler.Update)
-		g.DELETE("/:id", handler.Delete)
+		g.GET("/list", permMw("system:dept:list"), handler.List)
+		g.GET("/:id", permMw("system:dept:query"), handler.Get)
+		g.POST("", permMw("system:dept:add"), handler.Add)
+		g.PUT("", permMw("system:dept:edit"), handler.Update)
+		g.DELETE("/:id", permMw("system:dept:remove"), handler.Delete)
 	}
 }
 
