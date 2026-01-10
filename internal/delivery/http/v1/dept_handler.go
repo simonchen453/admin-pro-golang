@@ -29,7 +29,7 @@ func NewDeptHandler(r *gin.Engine, uc usecase.DeptUsecase, authMw gin.HandlerFun
 	}
 }
 
-// @Summary Get dept list
+// @Summary 获取部门列表
 // @Tags system/dept
 // @Accept json
 // @Produce json
@@ -44,9 +44,9 @@ func (h *DeptHandler) List(c *gin.Context) {
 	response.Success(c, list)
 }
 
-// @Summary Get dept info
+// @Summary 获取部门详情
 // @Tags system/dept
-// @Param id path string true "Dept ID"
+// @Param id path string true "部门ID"
 // @Success 200 {object} response.Response
 // @Router /api/v1/system/dept/{id} [get]
 func (h *DeptHandler) Get(c *gin.Context) {
@@ -59,11 +59,11 @@ func (h *DeptHandler) Get(c *gin.Context) {
 	response.Success(c, dept)
 }
 
-// @Summary Add dept
+// @Summary 新增部门
 // @Tags system/dept
 // @Accept json
 // @Produce json
-// @Param dept body entity.Dept true "Dept Info"
+// @Param dept body entity.Dept true "部门信息"
 // @Success 200 {object} response.Response
 // @Router /api/v1/system/dept [post]
 func (h *DeptHandler) Add(c *gin.Context) {
@@ -73,13 +73,13 @@ func (h *DeptHandler) Add(c *gin.Context) {
 		return
 	}
 
-	// Validate input
+	// 校验输入
 	if err := validator.Validate(&dept); err != nil {
 		response.Fail(c, http.StatusBadRequest, "400", err.Error())
 		return
 	}
 
-	// Basic Info from context
+	// 从上下文获取基础信息
 	dept.CreatedBy = c.GetString("userID")
 
 	if err := h.deptUsecase.CreateDept(c.Request.Context(), &dept); err != nil {
@@ -89,11 +89,11 @@ func (h *DeptHandler) Add(c *gin.Context) {
 	response.Success(c, nil)
 }
 
-// @Summary Update dept
+// @Summary 更新部门
 // @Tags system/dept
 // @Accept json
 // @Produce json
-// @Param dept body entity.Dept true "Dept Info"
+// @Param dept body entity.Dept true "部门信息"
 // @Success 200 {object} response.Response
 // @Router /api/v1/system/dept [put]
 func (h *DeptHandler) Update(c *gin.Context) {
@@ -118,9 +118,9 @@ func (h *DeptHandler) Update(c *gin.Context) {
 	response.Success(c, nil)
 }
 
-// @Summary Delete dept
+// @Summary 删除部门
 // @Tags system/dept
-// @Param id path string true "Dept ID"
+// @Param id path string true "部门ID"
 // @Success 200 {object} response.Response
 // @Router /api/v1/system/dept/{id} [delete]
 func (h *DeptHandler) Delete(c *gin.Context) {

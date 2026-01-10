@@ -14,22 +14,22 @@ type RoleHandler struct {
 	roleUsecase usecase.RoleUsecase
 }
 
-func NewRoleHandler(r *gin.Engine, uc usecase.RoleUsecase, mw gin.HandlerFunc) {
+func NewRoleHandler(r *gin.Engine, uc usecase.RoleUsecase, authMw gin.HandlerFunc, permMw func(string) gin.HandlerFunc) {
 	handler := &RoleHandler{
 		roleUsecase: uc,
 	}
 	g := r.Group("/api/v1/system/role")
-	g.Use(mw)
+	g.Use(authMw)
 	{
-		g.GET("/list", handler.List)
-		g.GET("/:id", handler.Get)
-		g.POST("", handler.Add)
-		g.PUT("", handler.Update)
-		g.DELETE("/:id", handler.Delete)
+		g.GET("/list", permMw("system:role:list"), handler.List)
+		g.GET("/:id", permMw("system:role:query"), handler.Get)
+		g.POST("", permMw("system:role:add"), handler.Add)
+		g.PUT("", permMw("system:role:edit"), handler.Update)
+		g.DELETE("/:id", permMw("system:role:remove"), handler.Delete)
 	}
 }
 
-// @Summary Get role list
+// @Summary 获取角色列表
 // @Tags system/role
 // @Accept json
 // @Produce json
@@ -44,9 +44,9 @@ func (h *RoleHandler) List(c *gin.Context) {
 	response.Success(c, list)
 }
 
-// @Summary Get role info
+// @Summary 获取角色详情
 // @Tags system/role
-// @Param id path string true "Role ID"
+// @Param id path string true "角色ID"
 // @Success 200 {object} response.Response
 // @Router /api/v1/system/role/{id} [get]
 func (h *RoleHandler) Get(c *gin.Context) {
@@ -59,11 +59,11 @@ func (h *RoleHandler) Get(c *gin.Context) {
 	response.Success(c, role)
 }
 
-// @Summary Add role
+// @Summary 新增角色
 // @Tags system/role
 // @Accept json
 // @Produce json
-// @Param role body entity.Role true "Role Info"
+// @Param role body entity.Role true "角色信息"
 // @Success 200 {object} response.Response
 // @Router /api/v1/system/role [post]
 func (h *RoleHandler) Add(c *gin.Context) {
@@ -73,7 +73,7 @@ func (h *RoleHandler) Add(c *gin.Context) {
 		return
 	}
 
-	// Validate input
+	// 校验输入
 	if err := validator.Validate(&role); err != nil {
 		response.Fail(c, http.StatusBadRequest, "400", err.Error())
 		return
@@ -86,11 +86,11 @@ func (h *RoleHandler) Add(c *gin.Context) {
 	response.Success(c, nil)
 }
 
-// @Summary Update role
+// @Summary 更新角色
 // @Tags system/role
 // @Accept json
 // @Produce json
-// @Param role body entity.Role true "Role Info"
+// @Param role body entity.Role true "角色信息"
 // @Success 200 {object} response.Response
 // @Router /api/v1/system/role [put]
 func (h *RoleHandler) Update(c *gin.Context) {
@@ -100,7 +100,7 @@ func (h *RoleHandler) Update(c *gin.Context) {
 		return
 	}
 
-	// Validate input
+	// 校验输入
 	if err := validator.Validate(&role); err != nil {
 		response.Fail(c, http.StatusBadRequest, "400", err.Error())
 		return
@@ -113,9 +113,9 @@ func (h *RoleHandler) Update(c *gin.Context) {
 	response.Success(c, nil)
 }
 
-// @Summary Delete role
+// @Summary 删除角色
 // @Tags system/role
-// @Param id path string true "Role ID"
+// @Param id path string true "角色ID"
 // @Success 200 {object} response.Response
 // @Router /api/v1/system/role/{id} [delete]
 func (h *RoleHandler) Delete(c *gin.Context) {

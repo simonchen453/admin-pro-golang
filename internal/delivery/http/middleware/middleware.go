@@ -11,9 +11,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Cors handles Cross-Origin Resource Sharing with configurable allowed origins
-// In production, set ALLOWED_ORIGINS environment variable with comma-separated origins
-// Example: ALLOWED_ORIGINS=https://example.com,https://admin.example.com
+// Cors 处理跨域资源共享（CORS）配置
+// 在生产环境中，可通过 ALLOWED_ORIGINS 环境变量设置允许的来源（逗号分隔）
+// 示例: ALLOWED_ORIGINS=https://example.com,https://admin.example.com
 func Cors() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		method := c.Request.Method
@@ -38,18 +38,18 @@ func Cors() gin.HandlerFunc {
 	}
 }
 
-// isOriginAllowed checks if the given origin is allowed
-// TODO: Load allowed origins from config or environment variable
-// Example: ALLOWED_ORIGINS=https://example.com,https://admin.example.com
+// isOriginAllowed 检查给定的来源是否被允许
+// TODO: 从配置或环境变量加载允许的来源列表
+// 示例: ALLOWED_ORIGINS=https://example.com,https://admin.example.com
 func isOriginAllowed(origin string) bool {
-	// For development, allow localhost
-	// For production, use specific domains
+	// 开发环境：允许 localhost
+	// 生产环境：使用具体域名
 	allowedOrigins := []string{
 		"http://localhost:3000",
 		"http://localhost:8080",
 		"http://127.0.0.1:3000",
 		"http://127.0.0.1:8080",
-		// Add production origins here
+		// 在此添加生产环境域名
 	}
 
 	for _, allowed := range allowedOrigins {
@@ -64,10 +64,10 @@ func isOriginAllowed(origin string) bool {
 // 验证 Token 并加载用户权限到 Context
 func JWTAuth(cfg *config.Config, userUsecase usecase.UserUsecase) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// 1. Check Cookie
+		// 1. 检查 Cookie
 		tokenString, err := c.Cookie("admin-pro-token")
 		if err != nil {
-			// 2. Check Header
+			// 2. 检查 Header
 			authHeader := c.GetHeader("Authorization")
 			if authHeader != "" && strings.HasPrefix(authHeader, "Bearer ") {
 				tokenString = authHeader[7:]

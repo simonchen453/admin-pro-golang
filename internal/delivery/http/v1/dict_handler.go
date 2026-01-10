@@ -13,35 +13,33 @@ type DictHandler struct {
 	dictUsecase usecase.DictUsecase
 }
 
-func NewDictHandler(r *gin.Engine, uc usecase.DictUsecase, mw gin.HandlerFunc) {
-	handler := &DictHandler{
-		dictUsecase: uc,
-	}
-	// Dict Type Routes
+func NewDictHandler(r *gin.Engine, uc usecase.DictUsecase, authMw gin.HandlerFunc, permMw func(string) gin.HandlerFunc) {
+	handler := &DictHandler{dictUsecase: uc}
+	// 字典类型路由
 	gType := r.Group("/api/v1/system/dict/type")
-	gType.Use(mw)
+	gType.Use(authMw)
 	{
-		gType.GET("/list", handler.ListType)
-		gType.GET("/:id", handler.GetType)
-		gType.POST("", handler.AddType)
-		gType.PUT("", handler.UpdateType)
-		gType.DELETE("/:id", handler.DeleteType)
+		gType.GET("/list", permMw("system:dict:list"), handler.ListType)
+		gType.GET("/:id", permMw("system:dict:query"), handler.GetType)
+		gType.POST("", permMw("system:dict:add"), handler.AddType)
+		gType.PUT("", permMw("system:dict:edit"), handler.UpdateType)
+		gType.DELETE("/:id", permMw("system:dict:remove"), handler.DeleteType)
 	}
 
-	// Dict Data Routes
+	// 字典数据路由
 	gData := r.Group("/api/v1/system/dict/data")
-	gData.Use(mw)
+	gData.Use(authMw)
 	{
-		gData.GET("/list", handler.ListData)
-		gData.GET("/type/:dictType", handler.GetDataByType) // Common use: get options by type
-		gData.GET("/:id", handler.GetData)
-		gData.POST("", handler.AddData)
-		gData.PUT("", handler.UpdateData)
-		gData.DELETE("/:id", handler.DeleteData)
+		gData.GET("/list", permMw("system:dict:list"), handler.ListData)
+		gData.GET("/type/:dictType", permMw("system:dict:query"), handler.GetDataByType)
+		gData.GET("/:id", permMw("system:dict:query"), handler.GetData)
+		gData.POST("", permMw("system:dict:add"), handler.AddData)
+		gData.PUT("", permMw("system:dict:edit"), handler.UpdateData)
+		gData.DELETE("/:id", permMw("system:dict:remove"), handler.DeleteData)
 	}
 }
 
-// --- Type Handlers ---
+// --- 字典类型处理器 ---
 
 func (h *DictHandler) ListType(c *gin.Context) {
 	list, err := h.dictUsecase.GetDictTypeList(c.Request.Context())
@@ -99,7 +97,7 @@ func (h *DictHandler) DeleteType(c *gin.Context) {
 	response.Success(c, nil)
 }
 
-// --- Data Handlers ---
+// --- 字典数据处理器 ---
 
 func (h *DictHandler) ListData(c *gin.Context) {
 	dictType := c.Query("dictType")

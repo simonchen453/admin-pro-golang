@@ -14,22 +14,22 @@ type MenuHandler struct {
 	menuUsecase usecase.MenuUsecase
 }
 
-func NewMenuHandler(r *gin.Engine, uc usecase.MenuUsecase, mw gin.HandlerFunc) {
+func NewMenuHandler(r *gin.Engine, uc usecase.MenuUsecase, authMw gin.HandlerFunc, permMw func(string) gin.HandlerFunc) {
 	handler := &MenuHandler{
 		menuUsecase: uc,
 	}
 	g := r.Group("/api/v1/system/menu")
-	g.Use(mw)
+	g.Use(authMw)
 	{
-		g.GET("/list", handler.List)
-		g.GET("/:id", handler.Get)
-		g.POST("", handler.Add)
-		g.PUT("", handler.Update)
-		g.DELETE("/:id", handler.Delete)
+		g.GET("/list", permMw("system:menu:list"), handler.List)
+		g.GET("/:id", permMw("system:menu:query"), handler.Get)
+		g.POST("", permMw("system:menu:add"), handler.Add)
+		g.PUT("", permMw("system:menu:edit"), handler.Update)
+		g.DELETE("/:id", permMw("system:menu:remove"), handler.Delete)
 	}
 }
 
-// @Summary Get menu list
+// @Summary 获取菜单列表
 // @Tags system/menu
 // @Accept json
 // @Produce json
@@ -44,9 +44,9 @@ func (h *MenuHandler) List(c *gin.Context) {
 	response.Success(c, list)
 }
 
-// @Summary Get menu info
+// @Summary 获取菜单详情
 // @Tags system/menu
-// @Param id path string true "Menu ID"
+// @Param id path string true "菜单ID"
 // @Success 200 {object} response.Response
 // @Router /api/v1/system/menu/{id} [get]
 func (h *MenuHandler) Get(c *gin.Context) {
@@ -59,11 +59,11 @@ func (h *MenuHandler) Get(c *gin.Context) {
 	response.Success(c, menu)
 }
 
-// @Summary Add menu
+// @Summary 新增菜单
 // @Tags system/menu
 // @Accept json
 // @Produce json
-// @Param menu body entity.Menu true "Menu Info"
+// @Param menu body entity.Menu true "菜单信息"
 // @Success 200 {object} response.Response
 // @Router /api/v1/system/menu [post]
 func (h *MenuHandler) Add(c *gin.Context) {
@@ -73,7 +73,7 @@ func (h *MenuHandler) Add(c *gin.Context) {
 		return
 	}
 
-	// Validate input
+	// 校验输入
 	if err := validator.Validate(&menu); err != nil {
 		response.Fail(c, http.StatusBadRequest, "400", err.Error())
 		return
@@ -86,11 +86,11 @@ func (h *MenuHandler) Add(c *gin.Context) {
 	response.Success(c, nil)
 }
 
-// @Summary Update menu
+// @Summary 更新菜单
 // @Tags system/menu
 // @Accept json
 // @Produce json
-// @Param menu body entity.Menu true "Menu Info"
+// @Param menu body entity.Menu true "菜单信息"
 // @Success 200 {object} response.Response
 // @Router /api/v1/system/menu [put]
 func (h *MenuHandler) Update(c *gin.Context) {
@@ -100,7 +100,7 @@ func (h *MenuHandler) Update(c *gin.Context) {
 		return
 	}
 
-	// Validate input
+	// 校验输入
 	if err := validator.Validate(&menu); err != nil {
 		response.Fail(c, http.StatusBadRequest, "400", err.Error())
 		return
@@ -113,9 +113,9 @@ func (h *MenuHandler) Update(c *gin.Context) {
 	response.Success(c, nil)
 }
 
-// @Summary Delete menu
+// @Summary 删除菜单
 // @Tags system/menu
-// @Param id path string true "Menu ID"
+// @Param id path string true "菜单ID"
 // @Success 200 {object} response.Response
 // @Router /api/v1/system/menu/{id} [delete]
 func (h *MenuHandler) Delete(c *gin.Context) {

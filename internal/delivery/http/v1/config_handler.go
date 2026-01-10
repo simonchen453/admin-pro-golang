@@ -13,23 +13,21 @@ type ConfigHandler struct {
 	configUsecase usecase.ConfigUsecase
 }
 
-func NewConfigHandler(r *gin.Engine, uc usecase.ConfigUsecase, mw gin.HandlerFunc) {
-	handler := &ConfigHandler{
-		configUsecase: uc,
-	}
+func NewConfigHandler(r *gin.Engine, uc usecase.ConfigUsecase, authMw gin.HandlerFunc, permMw func(string) gin.HandlerFunc) {
+	handler := &ConfigHandler{configUsecase: uc}
 	g := r.Group("/api/v1/system/config")
-	g.Use(mw)
+	g.Use(authMw)
 	{
-		g.GET("/list", handler.List)
-		g.GET("/:id", handler.Get)
-		g.GET("/key/:key", handler.GetByKey) // Get by key
-		g.POST("", handler.Add)
-		g.PUT("", handler.Update)
-		g.DELETE("/:id", handler.Delete)
+		g.GET("/list", permMw("system:config:list"), handler.List)
+		g.GET("/:id", permMw("system:config:query"), handler.Get)
+		g.GET("/key/:key", permMw("system:config:query"), handler.GetByKey)
+		g.POST("", permMw("system:config:add"), handler.Add)
+		g.PUT("", permMw("system:config:edit"), handler.Update)
+		g.DELETE("/:id", permMw("system:config:remove"), handler.Delete)
 	}
 }
 
-// @Summary Get config list
+// @Summary 获取参数配置列表
 // @Tags system/config
 // @Accept json
 // @Produce json
@@ -44,9 +42,9 @@ func (h *ConfigHandler) List(c *gin.Context) {
 	response.Success(c, list)
 }
 
-// @Summary Get config info
+// @Summary 获取参数配置详情
 // @Tags system/config
-// @Param id path string true "Config ID"
+// @Param id path string true "配置ID"
 // @Success 200 {object} response.Response
 // @Router /api/v1/system/config/{id} [get]
 func (h *ConfigHandler) Get(c *gin.Context) {
@@ -59,9 +57,9 @@ func (h *ConfigHandler) Get(c *gin.Context) {
 	response.Success(c, res)
 }
 
-// @Summary Get config by key
+// @Summary 根据Key获取配置
 // @Tags system/config
-// @Param key path string true "Config Key"
+// @Param key path string true "配置Key"
 // @Success 200 {object} response.Response
 // @Router /api/v1/system/config/key/{key} [get]
 func (h *ConfigHandler) GetByKey(c *gin.Context) {
@@ -74,11 +72,11 @@ func (h *ConfigHandler) GetByKey(c *gin.Context) {
 	response.Success(c, res)
 }
 
-// @Summary Add config
+// @Summary 新增参数配置
 // @Tags system/config
 // @Accept json
 // @Produce json
-// @Param config body entity.Config true "Config Info"
+// @Param config body entity.Config true "配置信息"
 // @Success 200 {object} response.Response
 // @Router /api/v1/system/config [post]
 func (h *ConfigHandler) Add(c *gin.Context) {
@@ -95,11 +93,11 @@ func (h *ConfigHandler) Add(c *gin.Context) {
 	response.Success(c, nil)
 }
 
-// @Summary Update config
+// @Summary 更新参数配置
 // @Tags system/config
 // @Accept json
 // @Produce json
-// @Param config body entity.Config true "Config Info"
+// @Param config body entity.Config true "配置信息"
 // @Success 200 {object} response.Response
 // @Router /api/v1/system/config [put]
 func (h *ConfigHandler) Update(c *gin.Context) {
@@ -116,9 +114,9 @@ func (h *ConfigHandler) Update(c *gin.Context) {
 	response.Success(c, nil)
 }
 
-// @Summary Delete config
+// @Summary 删除参数配置
 // @Tags system/config
-// @Param id path string true "Config ID"
+// @Param id path string true "配置ID"
 // @Success 200 {object} response.Response
 // @Router /api/v1/system/config/{id} [delete]
 func (h *ConfigHandler) Delete(c *gin.Context) {

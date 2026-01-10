@@ -7,7 +7,7 @@ type LoginLog struct {
 	ID            string    `json:"id" gorm:"column:col_id;primaryKey"`
 	UserID        string    `json:"userId" gorm:"column:col_user_id"`
 	UserDomain    string    `json:"userDomain" gorm:"column:col_user_domain"`
-	Key           string    `json:"key" gorm:"column:col_key"` // e.g. "admin" ?
+	Key           string    `json:"key" gorm:"column:col_key"` // 例如： "admin"
 	IPAddress     string    `json:"ipAddress" gorm:"column:col_ip_address"`
 	LoginLocation string    `json:"loginLocation" gorm:"column:col_login_location"`
 	Browser       string    `json:"browser" gorm:"column:col_browser"`

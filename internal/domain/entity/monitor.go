@@ -25,7 +25,7 @@ func (Session) TableName() string {
 	return "sys_session_tbl"
 }
 
-// Server info struct (not DB table)
+// 服务器信息结构体（非数据表）
 type Server struct {
 	CPU  CPUInfo  `json:"cpu"`
 	Mem  MemInfo  `json:"mem"`

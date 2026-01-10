@@ -13,22 +13,20 @@ type PostHandler struct {
 	postUsecase usecase.PostUsecase
 }
 
-func NewPostHandler(r *gin.Engine, uc usecase.PostUsecase, mw gin.HandlerFunc) {
-	handler := &PostHandler{
-		postUsecase: uc,
-	}
+func NewPostHandler(r *gin.Engine, uc usecase.PostUsecase, authMw gin.HandlerFunc, permMw func(string) gin.HandlerFunc) {
+	handler := &PostHandler{postUsecase: uc}
 	g := r.Group("/api/v1/system/post")
-	g.Use(mw)
+	g.Use(authMw)
 	{
-		g.GET("/list", handler.List)
-		g.GET("/:id", handler.Get)
-		g.POST("", handler.Add)
-		g.PUT("", handler.Update)
-		g.DELETE("/:id", handler.Delete)
+		g.GET("/list", permMw("system:post:list"), handler.List)
+		g.GET("/:id", permMw("system:post:query"), handler.Get)
+		g.POST("", permMw("system:post:add"), handler.Add)
+		g.PUT("", permMw("system:post:edit"), handler.Update)
+		g.DELETE("/:id", permMw("system:post:remove"), handler.Delete)
 	}
 }
 
-// @Summary Get post list
+// @Summary 获取岗位列表
 // @Tags system/post
 // @Accept json
 // @Produce json
@@ -43,9 +41,9 @@ func (h *PostHandler) List(c *gin.Context) {
 	response.Success(c, list)
 }
 
-// @Summary Get post info
+// @Summary 获取岗位详情
 // @Tags system/post
-// @Param id path string true "Post ID"
+// @Param id path string true "岗位ID"
 // @Success 200 {object} response.Response
 // @Router /api/v1/system/post/{id} [get]
 func (h *PostHandler) Get(c *gin.Context) {
@@ -58,11 +56,11 @@ func (h *PostHandler) Get(c *gin.Context) {
 	response.Success(c, post)
 }
 
-// @Summary Add post
+// @Summary 新增岗位
 // @Tags system/post
 // @Accept json
 // @Produce json
-// @Param post body entity.Post true "Post Info"
+// @Param post body entity.Post true "岗位信息"
 // @Success 200 {object} response.Response
 // @Router /api/v1/system/post [post]
 func (h *PostHandler) Add(c *gin.Context) {
@@ -81,11 +79,11 @@ func (h *PostHandler) Add(c *gin.Context) {
 	response.Success(c, nil)
 }
 
-// @Summary Update post
+// @Summary 更新岗位
 // @Tags system/post
 // @Accept json
 // @Produce json
-// @Param post body entity.Post true "Post Info"
+// @Param post body entity.Post true "岗位信息"
 // @Success 200 {object} response.Response
 // @Router /api/v1/system/post [put]
 func (h *PostHandler) Update(c *gin.Context) {
@@ -104,9 +102,9 @@ func (h *PostHandler) Update(c *gin.Context) {
 	response.Success(c, nil)
 }
 
-// @Summary Delete post
+// @Summary 删除岗位
 // @Tags system/post
-// @Param id path string true "Post ID"
+// @Param id path string true "岗位ID"
 // @Success 200 {object} response.Response
 // @Router /api/v1/system/post/{id} [delete]
 func (h *PostHandler) Delete(c *gin.Context) {

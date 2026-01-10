@@ -39,7 +39,7 @@ func (u *noticeUsecase) GetNotice(ctx context.Context, id string) (*entity.Notic
 func (u *noticeUsecase) CreateNotice(ctx context.Context, notice *entity.Notice) error {
 	notice.ID = uuid.NewString()
 	notice.CreatedDate = time.Now()
-	// Default logic if needed
+	// 如果需要，默认逻辑
 	return u.noticeRepo.Create(ctx, notice)
 }
 

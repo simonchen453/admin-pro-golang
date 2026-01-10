@@ -14,31 +14,28 @@ type JobHandler struct {
 	jobUsecase usecase.JobUsecase
 }
 
-func NewJobHandler(r *gin.Engine, uc usecase.JobUsecase, mw gin.HandlerFunc) {
-	handler := &JobHandler{
-		jobUsecase: uc,
-	}
+func NewJobHandler(r *gin.Engine, uc usecase.JobUsecase, authMw gin.HandlerFunc, permMw func(string) gin.HandlerFunc) {
+	handler := &JobHandler{jobUsecase: uc}
 
 	g := r.Group("/api/v1/job")
-	g.Use(mw)
+	g.Use(authMw)
 	{
-		g.GET("/list", handler.List)
-		g.GET("/:id", handler.Get)
-		g.POST("", handler.Add)
-		g.PUT("", handler.Update)
-		g.DELETE("/:id", handler.Delete)
+		g.GET("/list", permMw("job:job:list"), handler.List)
+		g.GET("/:id", permMw("job:job:query"), handler.Get)
+		g.POST("", permMw("job:job:add"), handler.Add)
+		g.PUT("", permMw("job:job:edit"), handler.Update)
+		g.DELETE("/:id", permMw("job:job:remove"), handler.Delete)
 	}
 
 	gLog := r.Group("/api/v1/job/log")
-	gLog.Use(mw)
+	gLog.Use(authMw)
 	{
-		gLog.GET("/list", handler.ListLog)
-		gLog.GET("/:id", handler.GetLog)
+		gLog.GET("/list", permMw("job:log:list"), handler.ListLog)
+		gLog.GET("/:id", permMw("job:log:query"), handler.GetLog)
 	}
 }
 
-// @Summary Get job list
-// @Tags job
+// @Summary 获取定时任务列表
 // @Success 200 {object} response.Response
 // @Router /api/v1/job/list [get]
 func (h *JobHandler) List(c *gin.Context) {
@@ -50,9 +47,9 @@ func (h *JobHandler) List(c *gin.Context) {
 	response.Success(c, list)
 }
 
-// @Summary Get job info
+// @Summary 获取定时任务详情
 // @Tags job
-// @Param id path string true "Job ID"
+// @Param id path string true "任务ID"
 // @Success 200 {object} response.Response
 // @Router /api/v1/job/{id} [get]
 func (h *JobHandler) Get(c *gin.Context) {
@@ -65,11 +62,11 @@ func (h *JobHandler) Get(c *gin.Context) {
 	response.Success(c, res)
 }
 
-// @Summary Add job
+// @Summary 新增定时任务
 // @Tags job
 // @Accept json
 // @Produce json
-// @Param job body entity.Job true "Job Info"
+// @Param job body entity.Job true "任务信息"
 // @Success 200 {object} response.Response
 // @Router /api/v1/job [post]
 func (h *JobHandler) Add(c *gin.Context) {
@@ -92,11 +89,11 @@ func (h *JobHandler) Add(c *gin.Context) {
 	response.Success(c, nil)
 }
 
-// @Summary Update job
+// @Summary 更新定时任务
 // @Tags job
 // @Accept json
 // @Produce json
-// @Param job body entity.Job true "Job Info"
+// @Param job body entity.Job true "任务信息"
 // @Success 200 {object} response.Response
 // @Router /api/v1/job [put]
 func (h *JobHandler) Update(c *gin.Context) {
@@ -119,9 +116,9 @@ func (h *JobHandler) Update(c *gin.Context) {
 	response.Success(c, nil)
 }
 
-// @Summary Delete job
+// @Summary 删除定时任务
 // @Tags job
-// @Param id path string true "Job ID"
+// @Param id path string true "任务ID"
 // @Success 200 {object} response.Response
 // @Router /api/v1/job/{id} [delete]
 func (h *JobHandler) Delete(c *gin.Context) {
@@ -133,8 +130,7 @@ func (h *JobHandler) Delete(c *gin.Context) {
 	response.Success(c, nil)
 }
 
-// @Summary Get job log list
-// @Tags job
+// @Summary 获取任务日志列表
 // @Success 200 {object} response.Response
 // @Router /api/v1/job/log/list [get]
 func (h *JobHandler) ListLog(c *gin.Context) {
@@ -146,9 +142,9 @@ func (h *JobHandler) ListLog(c *gin.Context) {
 	response.Success(c, list)
 }
 
-// @Summary Get job log info
+// @Summary 获取任务日志详情
 // @Tags job
-// @Param id path string true "Job Log ID"
+// @Param id path string true "日志ID"
 // @Success 200 {object} response.Response
 // @Router /api/v1/job/log/{id} [get]
 func (h *JobHandler) GetLog(c *gin.Context) {

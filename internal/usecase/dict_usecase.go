@@ -36,7 +36,7 @@ func NewDictUsecase(dictRepo repository.DictRepository) DictUsecase {
 	}
 }
 
-// --- Type ---
+// --- 字典类型 ---
 
 func (u *dictUsecase) GetDictTypeList(ctx context.Context) ([]*entity.DictType, error) {
 	return u.dictRepo.GetDictTypeList(ctx)
@@ -77,7 +77,7 @@ func (u *dictUsecase) DeleteDictType(ctx context.Context, id string) error {
 	return u.dictRepo.DeleteDictType(ctx, id)
 }
 
-// --- Data ---
+// --- 字典数据 ---
 
 func (u *dictUsecase) GetDictDataByType(ctx context.Context, dictType string) ([]*entity.DictData, error) {
 	return u.dictRepo.GetDictDataList(ctx, dictType)

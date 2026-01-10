@@ -14,25 +14,21 @@ type GenHandler struct {
 	genUsecase usecase.GenUsecase
 }
 
-func NewGenHandler(r *gin.Engine, uc usecase.GenUsecase, mw gin.HandlerFunc) {
-	handler := &GenHandler{
-		genUsecase: uc,
-	}
-	g := r.Group("/api/v1/generator") // Use /api/v1/generator to match typical pattern, frontend might need adjust or proxy
-	// Frontend uses /admin/generator -> /api/v1/generator via proxy
-	g.Use(mw)
+func NewGenHandler(r *gin.Engine, uc usecase.GenUsecase, authMw gin.HandlerFunc, permMw func(string) gin.HandlerFunc) {
+	handler := &GenHandler{genUsecase: uc}
+	g := r.Group("/api/v1/generator")
+	g.Use(authMw)
 	{
-		g.GET("/list", handler.List)
-		g.GET("/batchGenCode", handler.BatchGenCode) // Download
-		// g.GET("/genAll", handler.GenAll)
+		g.GET("/list", permMw("tool:gen:list"), handler.List)
+		g.GET("/batchGenCode", permMw("tool:gen:code"), handler.BatchGenCode)
 	}
 }
 
-// @Summary Get table list
+// @Summary 获取数据表列表
 // @Tags generator
-// @Param tableName query string false "Table Name"
-// @Param pageNo query int false "Page Number"
-// @Param pageSize query int false "Page Size"
+// @Param tableName query string false "表名"
+// @Param pageNo query int false "页码"
+// @Param pageSize query int false "每页数量"
 // @Success 200 {object} response.Response
 // @Router /api/v1/generator/list [get]
 func (h *GenHandler) List(c *gin.Context) {
@@ -56,9 +52,9 @@ func (h *GenHandler) List(c *gin.Context) {
 	response.PageSuccess(c, list, count, pageNo, pageSize)
 }
 
-// @Summary Batch generate code
+// @Summary 批量生成代码
 // @Tags generator
-// @Param tables query string true "Table Names (comma separated)"
+// @Param tables query string true "表名列表(逗号分隔)"
 // @Success 200 {file} application/zip
 // @Router /api/v1/generator/batchGenCode [get]
 func (h *GenHandler) BatchGenCode(c *gin.Context) {

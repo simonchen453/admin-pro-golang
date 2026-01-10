@@ -12,29 +12,27 @@ type LogHandler struct {
 	logUsecase usecase.LogUsecase
 }
 
-func NewLogHandler(r *gin.Engine, uc usecase.LogUsecase, mw gin.HandlerFunc) {
-	handler := &LogHandler{
-		logUsecase: uc,
-	}
+func NewLogHandler(r *gin.Engine, uc usecase.LogUsecase, authMw gin.HandlerFunc, permMw func(string) gin.HandlerFunc) {
+	handler := &LogHandler{logUsecase: uc}
 
 	gLogin := r.Group("/api/v1/monitor/logininfor")
-	gLogin.Use(mw)
+	gLogin.Use(authMw)
 	{
-		gLogin.GET("/list", handler.ListLoginLog)
-		gLogin.DELETE("/:id", handler.DeleteLoginLog)
-		gLogin.DELETE("/clean", handler.CleanLoginLog)
+		gLogin.GET("/list", permMw("monitor:log:list"), handler.ListLoginLog)
+		gLogin.DELETE("/:id", permMw("monitor:log:remove"), handler.DeleteLoginLog)
+		gLogin.DELETE("/clean", permMw("monitor:log:remove"), handler.CleanLoginLog)
 	}
 
 	gOper := r.Group("/api/v1/monitor/operlog")
-	gOper.Use(mw)
+	gOper.Use(authMw)
 	{
-		gOper.GET("/list", handler.ListOperLog)
-		gOper.DELETE("/:id", handler.DeleteOperLog)
-		gOper.DELETE("/clean", handler.CleanOperLog)
+		gOper.GET("/list", permMw("monitor:log:list"), handler.ListOperLog)
+		gOper.DELETE("/:id", permMw("monitor:log:remove"), handler.DeleteOperLog)
+		gOper.DELETE("/clean", permMw("monitor:log:remove"), handler.CleanOperLog)
 	}
 }
 
-// --- Login Log ---
+// --- 登录日志 ---
 
 func (h *LogHandler) ListLoginLog(c *gin.Context) {
 	list, err := h.logUsecase.GetLoginLogList(c.Request.Context())
@@ -62,7 +60,7 @@ func (h *LogHandler) CleanLoginLog(c *gin.Context) {
 	response.Success(c, nil)
 }
 
-// --- Oper Log ---
+// --- 操作日志 ---
 
 func (h *LogHandler) ListOperLog(c *gin.Context) {
 	list, err := h.logUsecase.GetOperLogList(c.Request.Context())

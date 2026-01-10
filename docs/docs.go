@@ -23,16 +23,89 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/v1/auth/login": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "用户登录",
+                "parameters": [
+                    {
+                        "description": "登录凭证",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/v1.LoginRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/auth/logout": {
+            "post": {
+                "tags": [
+                    "auth"
+                ],
+                "summary": "用户登出",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/auth/userinfo": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "获取当前用户信息",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/generator/batchGenCode": {
             "get": {
                 "tags": [
                     "generator"
                 ],
-                "summary": "Batch generate code",
+                "summary": "批量生成代码",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Table Names (comma separated)",
+                        "description": "表名列表(逗号分隔)",
                         "name": "tables",
                         "in": "query",
                         "required": true
@@ -53,23 +126,23 @@ const docTemplate = `{
                 "tags": [
                     "generator"
                 ],
-                "summary": "Get table list",
+                "summary": "获取数据表列表",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Table Name",
+                        "description": "表名",
                         "name": "tableName",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "description": "Page Number",
+                        "description": "页码",
                         "name": "pageNo",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "description": "Page Size",
+                        "description": "每页数量",
                         "name": "pageSize",
                         "in": "query"
                     }
@@ -78,7 +151,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/admin-pro_pkg_response.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -95,15 +168,15 @@ const docTemplate = `{
                 "tags": [
                     "job"
                 ],
-                "summary": "Update job",
+                "summary": "更新定时任务",
                 "parameters": [
                     {
-                        "description": "Job Info",
+                        "description": "任务信息",
                         "name": "job",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/admin-pro_internal_domain_entity.Job"
+                            "$ref": "#/definitions/entity.Job"
                         }
                     }
                 ],
@@ -111,7 +184,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/admin-pro_pkg_response.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -126,15 +199,15 @@ const docTemplate = `{
                 "tags": [
                     "job"
                 ],
-                "summary": "Add job",
+                "summary": "新增定时任务",
                 "parameters": [
                     {
-                        "description": "Job Info",
+                        "description": "任务信息",
                         "name": "job",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/admin-pro_internal_domain_entity.Job"
+                            "$ref": "#/definitions/entity.Job"
                         }
                     }
                 ],
@@ -142,7 +215,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/admin-pro_pkg_response.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -150,15 +223,12 @@ const docTemplate = `{
         },
         "/api/v1/job/list": {
             "get": {
-                "tags": [
-                    "job"
-                ],
-                "summary": "Get job list",
+                "summary": "获取定时任务列表",
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/admin-pro_pkg_response.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -166,15 +236,12 @@ const docTemplate = `{
         },
         "/api/v1/job/log/list": {
             "get": {
-                "tags": [
-                    "job"
-                ],
-                "summary": "Get job log list",
+                "summary": "获取任务日志列表",
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/admin-pro_pkg_response.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -185,11 +252,11 @@ const docTemplate = `{
                 "tags": [
                     "job"
                 ],
-                "summary": "Get job log info",
+                "summary": "获取任务日志详情",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Job Log ID",
+                        "description": "日志ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -199,7 +266,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/admin-pro_pkg_response.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -210,11 +277,11 @@ const docTemplate = `{
                 "tags": [
                     "job"
                 ],
-                "summary": "Get job info",
+                "summary": "获取定时任务详情",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Job ID",
+                        "description": "任务ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -224,7 +291,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/admin-pro_pkg_response.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -233,11 +300,11 @@ const docTemplate = `{
                 "tags": [
                     "job"
                 ],
-                "summary": "Delete job",
+                "summary": "删除定时任务",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Job ID",
+                        "description": "任务ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -247,7 +314,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/admin-pro_pkg_response.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -255,15 +322,12 @@ const docTemplate = `{
         },
         "/api/v1/monitor/online/list": {
             "get": {
-                "tags": [
-                    "monitor"
-                ],
-                "summary": "Get online sessions",
+                "summary": "获取在线用户列表",
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/admin-pro_pkg_response.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -274,11 +338,11 @@ const docTemplate = `{
                 "tags": [
                     "monitor"
                 ],
-                "summary": "Force logout session",
+                "summary": "强退用户",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Session ID",
+                        "description": "会话ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -288,7 +352,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/admin-pro_pkg_response.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -296,15 +360,12 @@ const docTemplate = `{
         },
         "/api/v1/monitor/server": {
             "get": {
-                "tags": [
-                    "monitor"
-                ],
-                "summary": "Get server info",
+                "summary": "获取服务器监控信息",
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/admin-pro_pkg_response.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -321,15 +382,15 @@ const docTemplate = `{
                 "tags": [
                     "system/config"
                 ],
-                "summary": "Update config",
+                "summary": "更新参数配置",
                 "parameters": [
                     {
-                        "description": "Config Info",
+                        "description": "配置信息",
                         "name": "config",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/admin-pro_internal_domain_entity.Config"
+                            "$ref": "#/definitions/entity.Config"
                         }
                     }
                 ],
@@ -337,7 +398,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/admin-pro_pkg_response.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -352,15 +413,15 @@ const docTemplate = `{
                 "tags": [
                     "system/config"
                 ],
-                "summary": "Add config",
+                "summary": "新增参数配置",
                 "parameters": [
                     {
-                        "description": "Config Info",
+                        "description": "配置信息",
                         "name": "config",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/admin-pro_internal_domain_entity.Config"
+                            "$ref": "#/definitions/entity.Config"
                         }
                     }
                 ],
@@ -368,7 +429,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/admin-pro_pkg_response.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -379,11 +440,11 @@ const docTemplate = `{
                 "tags": [
                     "system/config"
                 ],
-                "summary": "Get config by key",
+                "summary": "根据Key获取配置",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Config Key",
+                        "description": "配置Key",
                         "name": "key",
                         "in": "path",
                         "required": true
@@ -393,7 +454,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/admin-pro_pkg_response.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -410,12 +471,12 @@ const docTemplate = `{
                 "tags": [
                     "system/config"
                 ],
-                "summary": "Get config list",
+                "summary": "获取参数配置列表",
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/admin-pro_pkg_response.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -426,11 +487,11 @@ const docTemplate = `{
                 "tags": [
                     "system/config"
                 ],
-                "summary": "Get config info",
+                "summary": "获取参数配置详情",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Config ID",
+                        "description": "配置ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -440,7 +501,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/admin-pro_pkg_response.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -449,11 +510,11 @@ const docTemplate = `{
                 "tags": [
                     "system/config"
                 ],
-                "summary": "Delete config",
+                "summary": "删除参数配置",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Config ID",
+                        "description": "配置ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -463,7 +524,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/admin-pro_pkg_response.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -480,15 +541,15 @@ const docTemplate = `{
                 "tags": [
                     "system/dept"
                 ],
-                "summary": "Update dept",
+                "summary": "更新部门",
                 "parameters": [
                     {
-                        "description": "Dept Info",
+                        "description": "部门信息",
                         "name": "dept",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/admin-pro_internal_domain_entity.Dept"
+                            "$ref": "#/definitions/entity.Dept"
                         }
                     }
                 ],
@@ -496,7 +557,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/admin-pro_pkg_response.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -511,15 +572,15 @@ const docTemplate = `{
                 "tags": [
                     "system/dept"
                 ],
-                "summary": "Add dept",
+                "summary": "新增部门",
                 "parameters": [
                     {
-                        "description": "Dept Info",
+                        "description": "部门信息",
                         "name": "dept",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/admin-pro_internal_domain_entity.Dept"
+                            "$ref": "#/definitions/entity.Dept"
                         }
                     }
                 ],
@@ -527,7 +588,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/admin-pro_pkg_response.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -544,12 +605,12 @@ const docTemplate = `{
                 "tags": [
                     "system/dept"
                 ],
-                "summary": "Get dept list",
+                "summary": "获取部门列表",
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/admin-pro_pkg_response.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -560,11 +621,11 @@ const docTemplate = `{
                 "tags": [
                     "system/dept"
                 ],
-                "summary": "Get dept info",
+                "summary": "获取部门详情",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Dept ID",
+                        "description": "部门ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -574,7 +635,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/admin-pro_pkg_response.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -583,11 +644,11 @@ const docTemplate = `{
                 "tags": [
                     "system/dept"
                 ],
-                "summary": "Delete dept",
+                "summary": "删除部门",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Dept ID",
+                        "description": "部门ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -597,7 +658,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/admin-pro_pkg_response.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -614,15 +675,15 @@ const docTemplate = `{
                 "tags": [
                     "system/menu"
                 ],
-                "summary": "Update menu",
+                "summary": "更新菜单",
                 "parameters": [
                     {
-                        "description": "Menu Info",
+                        "description": "菜单信息",
                         "name": "menu",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/admin-pro_internal_domain_entity.Menu"
+                            "$ref": "#/definitions/entity.Menu"
                         }
                     }
                 ],
@@ -630,7 +691,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/admin-pro_pkg_response.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -645,15 +706,15 @@ const docTemplate = `{
                 "tags": [
                     "system/menu"
                 ],
-                "summary": "Add menu",
+                "summary": "新增菜单",
                 "parameters": [
                     {
-                        "description": "Menu Info",
+                        "description": "菜单信息",
                         "name": "menu",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/admin-pro_internal_domain_entity.Menu"
+                            "$ref": "#/definitions/entity.Menu"
                         }
                     }
                 ],
@@ -661,7 +722,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/admin-pro_pkg_response.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -678,12 +739,12 @@ const docTemplate = `{
                 "tags": [
                     "system/menu"
                 ],
-                "summary": "Get menu list",
+                "summary": "获取菜单列表",
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/admin-pro_pkg_response.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -694,11 +755,11 @@ const docTemplate = `{
                 "tags": [
                     "system/menu"
                 ],
-                "summary": "Get menu info",
+                "summary": "获取菜单详情",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Menu ID",
+                        "description": "菜单ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -708,7 +769,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/admin-pro_pkg_response.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -717,11 +778,11 @@ const docTemplate = `{
                 "tags": [
                     "system/menu"
                 ],
-                "summary": "Delete menu",
+                "summary": "删除菜单",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Menu ID",
+                        "description": "菜单ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -731,7 +792,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/admin-pro_pkg_response.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -748,15 +809,15 @@ const docTemplate = `{
                 "tags": [
                     "system/notice"
                 ],
-                "summary": "Update notice",
+                "summary": "更新通知公告",
                 "parameters": [
                     {
-                        "description": "Notice Info",
+                        "description": "公告信息",
                         "name": "notice",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/admin-pro_internal_domain_entity.Notice"
+                            "$ref": "#/definitions/entity.Notice"
                         }
                     }
                 ],
@@ -764,7 +825,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/admin-pro_pkg_response.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -779,15 +840,15 @@ const docTemplate = `{
                 "tags": [
                     "system/notice"
                 ],
-                "summary": "Add notice",
+                "summary": "新增通知公告",
                 "parameters": [
                     {
-                        "description": "Notice Info",
+                        "description": "公告信息",
                         "name": "notice",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/admin-pro_internal_domain_entity.Notice"
+                            "$ref": "#/definitions/entity.Notice"
                         }
                     }
                 ],
@@ -795,7 +856,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/admin-pro_pkg_response.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -812,12 +873,12 @@ const docTemplate = `{
                 "tags": [
                     "system/notice"
                 ],
-                "summary": "Get notice list",
+                "summary": "获取通知公告列表",
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/admin-pro_pkg_response.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -828,11 +889,11 @@ const docTemplate = `{
                 "tags": [
                     "system/notice"
                 ],
-                "summary": "Get notice info",
+                "summary": "获取通知公告详情",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Notice ID",
+                        "description": "公告ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -842,7 +903,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/admin-pro_pkg_response.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -851,11 +912,11 @@ const docTemplate = `{
                 "tags": [
                     "system/notice"
                 ],
-                "summary": "Delete notice",
+                "summary": "删除通知公告",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Notice ID",
+                        "description": "公告ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -865,7 +926,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/admin-pro_pkg_response.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -882,15 +943,15 @@ const docTemplate = `{
                 "tags": [
                     "system/post"
                 ],
-                "summary": "Update post",
+                "summary": "更新岗位",
                 "parameters": [
                     {
-                        "description": "Post Info",
+                        "description": "岗位信息",
                         "name": "post",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/admin-pro_internal_domain_entity.Post"
+                            "$ref": "#/definitions/entity.Post"
                         }
                     }
                 ],
@@ -898,7 +959,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/admin-pro_pkg_response.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -913,15 +974,15 @@ const docTemplate = `{
                 "tags": [
                     "system/post"
                 ],
-                "summary": "Add post",
+                "summary": "新增岗位",
                 "parameters": [
                     {
-                        "description": "Post Info",
+                        "description": "岗位信息",
                         "name": "post",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/admin-pro_internal_domain_entity.Post"
+                            "$ref": "#/definitions/entity.Post"
                         }
                     }
                 ],
@@ -929,7 +990,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/admin-pro_pkg_response.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -946,12 +1007,12 @@ const docTemplate = `{
                 "tags": [
                     "system/post"
                 ],
-                "summary": "Get post list",
+                "summary": "获取岗位列表",
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/admin-pro_pkg_response.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -962,11 +1023,11 @@ const docTemplate = `{
                 "tags": [
                     "system/post"
                 ],
-                "summary": "Get post info",
+                "summary": "获取岗位详情",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Post ID",
+                        "description": "岗位ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -976,7 +1037,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/admin-pro_pkg_response.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -985,11 +1046,11 @@ const docTemplate = `{
                 "tags": [
                     "system/post"
                 ],
-                "summary": "Delete post",
+                "summary": "删除岗位",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Post ID",
+                        "description": "岗位ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -999,7 +1060,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/admin-pro_pkg_response.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -1016,15 +1077,15 @@ const docTemplate = `{
                 "tags": [
                     "system/role"
                 ],
-                "summary": "Update role",
+                "summary": "更新角色",
                 "parameters": [
                     {
-                        "description": "Role Info",
+                        "description": "角色信息",
                         "name": "role",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/admin-pro_internal_domain_entity.Role"
+                            "$ref": "#/definitions/entity.Role"
                         }
                     }
                 ],
@@ -1032,7 +1093,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/admin-pro_pkg_response.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -1047,15 +1108,15 @@ const docTemplate = `{
                 "tags": [
                     "system/role"
                 ],
-                "summary": "Add role",
+                "summary": "新增角色",
                 "parameters": [
                     {
-                        "description": "Role Info",
+                        "description": "角色信息",
                         "name": "role",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/admin-pro_internal_domain_entity.Role"
+                            "$ref": "#/definitions/entity.Role"
                         }
                     }
                 ],
@@ -1063,7 +1124,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/admin-pro_pkg_response.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -1080,12 +1141,12 @@ const docTemplate = `{
                 "tags": [
                     "system/role"
                 ],
-                "summary": "Get role list",
+                "summary": "获取角色列表",
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/admin-pro_pkg_response.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -1096,11 +1157,11 @@ const docTemplate = `{
                 "tags": [
                     "system/role"
                 ],
-                "summary": "Get role info",
+                "summary": "获取角色详情",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Role ID",
+                        "description": "角色ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -1110,7 +1171,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/admin-pro_pkg_response.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -1119,11 +1180,11 @@ const docTemplate = `{
                 "tags": [
                     "system/role"
                 ],
-                "summary": "Delete role",
+                "summary": "删除角色",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Role ID",
+                        "description": "角色ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -1133,7 +1194,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/admin-pro_pkg_response.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -1141,7 +1202,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "admin-pro_internal_domain_entity.Config": {
+        "entity.Config": {
             "type": "object",
             "properties": {
                 "createdBy": {
@@ -1154,7 +1215,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "isSystem": {
-                    "description": "1=Yes 0=No",
+                    "description": "1=是 0=否",
                     "type": "integer"
                 },
                 "key": {
@@ -1177,13 +1238,16 @@ const docTemplate = `{
                 }
             }
         },
-        "admin-pro_internal_domain_entity.Dept": {
+        "entity.Dept": {
             "type": "object",
+            "required": [
+                "name"
+            ],
             "properties": {
                 "children": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/admin-pro_internal_domain_entity.Dept"
+                        "$ref": "#/definitions/entity.Dept"
                     }
                 },
                 "createdBy": {
@@ -1193,19 +1257,24 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "email": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 100
                 },
                 "id": {
                     "type": "string"
                 },
                 "leader": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 50
                 },
                 "name": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 50,
+                    "minLength": 2
                 },
                 "orderNum": {
-                    "type": "integer"
+                    "type": "integer",
+                    "minimum": 0
                 },
                 "parentId": {
                     "type": "string"
@@ -1214,7 +1283,11 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "status": {
-                    "type": "string"
+                    "type": "string",
+                    "enum": [
+                        "active",
+                        "inactive"
+                    ]
                 },
                 "updatedBy": {
                     "type": "string"
@@ -1224,82 +1297,124 @@ const docTemplate = `{
                 }
             }
         },
-        "admin-pro_internal_domain_entity.Job": {
+        "entity.Job": {
             "type": "object",
+            "required": [
+                "beanName",
+                "cronExpression",
+                "methodName"
+            ],
             "properties": {
                 "beanName": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 100,
+                    "minLength": 2
                 },
                 "createdTime": {
                     "type": "string"
                 },
                 "cronExpression": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 100
                 },
                 "id": {
                     "type": "string"
                 },
                 "methodName": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 100,
+                    "minLength": 2
                 },
                 "params": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 500
                 },
                 "remark": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 500
                 },
                 "status": {
                     "description": "0:正常 1:暂停",
-                    "type": "integer"
+                    "type": "integer",
+                    "enum": [
+                        0,
+                        1
+                    ]
                 }
             }
         },
-        "admin-pro_internal_domain_entity.Menu": {
+        "entity.Menu": {
             "type": "object",
+            "required": [
+                "display",
+                "name",
+                "type"
+            ],
             "properties": {
                 "children": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/admin-pro_internal_domain_entity.Menu"
+                        "$ref": "#/definitions/entity.Menu"
                     }
                 },
                 "display": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 100,
+                    "minLength": 2
                 },
                 "icon": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 50
                 },
                 "id": {
                     "type": "string"
                 },
                 "name": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 50,
+                    "minLength": 2
                 },
                 "orderNum": {
-                    "type": "integer"
+                    "type": "integer",
+                    "minimum": 0
                 },
                 "parentId": {
                     "type": "string"
                 },
                 "permission": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 100
                 },
                 "status": {
-                    "type": "string"
+                    "type": "string",
+                    "enum": [
+                        "0",
+                        "1"
+                    ]
                 },
                 "type": {
                     "description": "M目录 C菜单 F按钮",
-                    "type": "string"
+                    "type": "string",
+                    "enum": [
+                        "M",
+                        "C",
+                        "F"
+                    ]
                 },
                 "url": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 255
                 },
                 "visible": {
-                    "type": "string"
+                    "type": "string",
+                    "enum": [
+                        "0",
+                        "1"
+                    ]
                 }
             }
         },
-        "admin-pro_internal_domain_entity.Notice": {
+        "entity.Notice": {
             "type": "object",
             "properties": {
                 "content": {
@@ -1334,7 +1449,7 @@ const docTemplate = `{
                 }
             }
         },
-        "admin-pro_internal_domain_entity.Post": {
+        "entity.Post": {
             "type": "object",
             "properties": {
                 "code": {
@@ -1369,14 +1484,20 @@ const docTemplate = `{
                 }
             }
         },
-        "admin-pro_internal_domain_entity.Role": {
+        "entity.Role": {
             "type": "object",
+            "required": [
+                "display",
+                "name"
+            ],
             "properties": {
                 "createdDate": {
                     "type": "string"
                 },
                 "display": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 100,
+                    "minLength": 2
                 },
                 "id": {
                     "type": "string"
@@ -1385,14 +1506,20 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "name": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 50,
+                    "minLength": 2
                 },
                 "status": {
-                    "type": "string"
+                    "type": "string",
+                    "enum": [
+                        "active",
+                        "inactive"
+                    ]
                 }
             }
         },
-        "admin-pro_pkg_response.Response": {
+        "response.Response": {
             "type": "object",
             "properties": {
                 "data": {},
@@ -1400,6 +1527,22 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "restCode": {
+                    "type": "string"
+                }
+            }
+        },
+        "v1.LoginRequest": {
+            "type": "object",
+            "required": [
+                "loginName",
+                "password"
+            ],
+            "properties": {
+                "loginName": {
+                    "description": "必填校验",
+                    "type": "string"
+                },
+                "password": {
                     "type": "string"
                 }
             }

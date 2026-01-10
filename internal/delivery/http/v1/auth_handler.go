@@ -37,6 +37,13 @@ type LoginRequest struct {
 }
 
 // Login 处理登录请求 POST /api/v1/auth/login
+// @Summary 用户登录
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param request body LoginRequest true "登录凭证"
+// @Success 200 {object} response.Response
+// @Router /api/v1/auth/login [post]
 func (h *AuthHandler) Login(c *gin.Context) {
 	var req LoginRequest
 	// 1. 绑定并校验参数
@@ -64,44 +71,12 @@ func (h *AuthHandler) Login(c *gin.Context) {
 }
 
 // Logout 处理登出请求
+// @Summary 用户登出
+// @Tags auth
+// @Success 200 {object} response.Response
+// @Router /api/v1/auth/logout [post]
 func (h *AuthHandler) Logout(c *gin.Context) {
 	// 清除 Cookie
 	c.SetCookie("admin-pro-token", "", -1, "/", "", false, true)
 	response.Success(c, nil)
-}
-
-// UserHandler 处理用户相关的请求
-type UserHandler struct {
-	userUsecase usecase.UserUsecase
-}
-
-// NewUserHandler 构造函数
-func NewUserHandler(r *gin.Engine, uc usecase.UserUsecase, mw gin.HandlerFunc) {
-	handler := &UserHandler{
-		userUsecase: uc,
-	}
-	g := r.Group("/api/v1") // 通用路由组
-	g.Use(mw)               // 使用中间件 (JWT 认证)
-	{
-		g.GET("/auth/userinfo", handler.GetUserInfo) // 获取当前用户信息
-	}
-}
-
-// GetUserInfo 获取当前登录用户的信息（包含角色和权限）
-func (h *UserHandler) GetUserInfo(c *gin.Context) {
-	// 从 Gin Context 中获取 userID (由 JWT 中间件解析并存入)
-	userID, exists := c.Get("userID")
-	if !exists {
-		response.Fail(c, http.StatusUnauthorized, "401", "Unauthorized")
-		return
-	}
-
-	// 调用 Usecase
-	userInfo, err := h.userUsecase.GetUserInfo(c.Request.Context(), userID.(string))
-	if err != nil {
-		response.Error(c, http.StatusInternalServerError, err)
-		return
-	}
-
-	response.Success(c, userInfo)
 }

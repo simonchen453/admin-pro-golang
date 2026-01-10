@@ -45,7 +45,7 @@ func (u *roleUsecase) GetRole(ctx context.Context, id string) (*entity.Role, err
 }
 
 func (u *roleUsecase) CreateRole(ctx context.Context, role *entity.Role) error {
-	// Check if role name already exists
+	// 检查角色名称是否已存在
 	existingRoles, err := u.roleRepo.GetRoleList(ctx)
 	if err != nil {
 		return apperrors.Wrap(err, "failed to check existing roles")
@@ -69,7 +69,7 @@ func (u *roleUsecase) UpdateRole(ctx context.Context, role *entity.Role) error {
 		return apperrors.ErrNotFound
 	}
 
-	// Check if system role
+	// 检查是否为系统角色
 	if exist.IsSystem != nil && *exist.IsSystem {
 		return errors.New("cannot update system role")
 	}
@@ -86,7 +86,7 @@ func (u *roleUsecase) DeleteRole(ctx context.Context, id string) error {
 		return apperrors.ErrNotFound
 	}
 
-	// Check if system role
+	// 检查是否为系统角色
 	if exist.IsSystem != nil && *exist.IsSystem {
 		return errors.New("cannot delete system role")
 	}

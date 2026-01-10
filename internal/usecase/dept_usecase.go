@@ -45,9 +45,9 @@ func (u *deptUsecase) CreateDept(ctx context.Context, dept *entity.Dept) error {
 		return apperrors.ErrAlreadyExists
 	}
 
-	dept.ID = uuid.NewString() // Generate UUID
+	dept.ID = uuid.NewString() // 生成 UUID
 	dept.CreatedDate = time.Now()
-	dept.Status = "active" // Default status
+	dept.Status = "active" // 默认状态
 	return u.deptRepo.Create(ctx, dept)
 }
 
@@ -61,7 +61,7 @@ func (u *deptUsecase) UpdateDept(ctx context.Context, dept *entity.Dept) error {
 	}
 
 	dept.UpdatedDate = time.Now()
-	// Merge updates (simplified)
+	// 合并更新
 	return u.deptRepo.Update(ctx, dept)
 }
 

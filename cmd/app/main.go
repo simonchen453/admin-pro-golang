@@ -13,7 +13,7 @@ import (
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 
-	_ "admin-pro/docs"
+	_ "admin-pro/docs" // Swagger 文档自动生成
 
 	"admin-pro/internal/config"
 	"admin-pro/internal/delivery/http/middleware"
@@ -50,14 +50,14 @@ func main() {
 	// 读取 config.yaml 文件，包含数据库连接、端口等信息
 	cfg, err := config.LoadConfig()
 	if err != nil {
-		log.Fatalf("Failed to load config: %v", err)
+		log.Fatalf("加载配置失败: %v", err)
 	}
 
 	// 2. 初始化数据库连接 (Init DB)
 	// 使用 GORM 连接 MySQL
 	db, err := persistence.NewDB(cfg)
 	if err != nil {
-		log.Fatalf("Failed to init DB: %v", err)
+		log.Fatalf("初始化数据库失败: %v", err)
 	}
 
 	// 3. 初始化 Repository层 (Init Repositories)
@@ -110,7 +110,7 @@ func main() {
 	permMw := middleware.RequirePermission         // 权限检查中间件生成器
 
 	v1.NewAuthHandler(r, authUsecase, cfg)
-	v1.NewUserHandler(r, userUsecase, authMw, permMw)
+	v1.NewUserHandler(r, userUsecase, authMw)
 	v1.NewRoleHandler(r, roleUsecase, authMw, permMw)
 	v1.NewMenuHandler(r, menuUsecase, authMw, permMw)
 	v1.NewDeptHandler(r, deptUsecase, authMw, permMw)
@@ -147,34 +147,34 @@ func main() {
 
 	// 在 Goroutine 中启动服务器
 	go func() {
-		log.Printf("Server starting on %s", cfg.Server.Port)
+		log.Printf("服务启动于 %s", cfg.Server.Port)
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Printf("Server listen failed: %v", err)
+			log.Printf("服务监听失败: %v", err)
 			// 通知主 goroutine 退出
 			quit <- syscall.SIGTERM
 		}
 	}()
 
 	<-quit
-	log.Println("Shutting down server...")
+	log.Println("正在关闭服务器...")
 
 	// 5 秒超时的 Context 用于优雅关闭
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	if err := srv.Shutdown(ctx); err != nil {
-		log.Printf("Server forced to shutdown: %v", err)
+		log.Printf("服务器强制关闭: %v", err)
 	}
 
 	// 关闭数据库连接
 	sqlDB, err := db.DB()
 	if err == nil {
 		if err := sqlDB.Close(); err != nil {
-			log.Printf("Error closing database: %v", err)
+			log.Printf("关闭数据库失败: %v", err)
 		} else {
-			log.Println("Database connection closed")
+			log.Println("数据库连接已关闭")
 		}
 	}
 
-	log.Println("Server exited")
+	log.Println("服务器已退出")
 }

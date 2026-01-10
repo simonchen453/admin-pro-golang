@@ -33,7 +33,7 @@ func Error(c *gin.Context, httpCode int, err error) {
 }
 
 type PageResult struct {
-	List  interface{} `json:"rows"` // Consistent with many table plugins, or "list"
+	List  interface{} `json:"rows"` // 兼容主流分页插件，或使用 "list"
 	Total int64       `json:"total"`
 	Page  int         `json:"page"`
 	Size  int         `json:"size"`

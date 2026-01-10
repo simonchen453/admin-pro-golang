@@ -13,22 +13,20 @@ type NoticeHandler struct {
 	noticeUsecase usecase.NoticeUsecase
 }
 
-func NewNoticeHandler(r *gin.Engine, uc usecase.NoticeUsecase, mw gin.HandlerFunc) {
-	handler := &NoticeHandler{
-		noticeUsecase: uc,
-	}
+func NewNoticeHandler(r *gin.Engine, uc usecase.NoticeUsecase, authMw gin.HandlerFunc, permMw func(string) gin.HandlerFunc) {
+	handler := &NoticeHandler{noticeUsecase: uc}
 	g := r.Group("/api/v1/system/notice")
-	g.Use(mw)
+	g.Use(authMw)
 	{
-		g.GET("/list", handler.List)
-		g.GET("/:id", handler.Get)
-		g.POST("", handler.Add)
-		g.PUT("", handler.Update)
-		g.DELETE("/:id", handler.Delete)
+		g.GET("/list", permMw("system:notice:list"), handler.List)
+		g.GET("/:id", permMw("system:notice:query"), handler.Get)
+		g.POST("", permMw("system:notice:add"), handler.Add)
+		g.PUT("", permMw("system:notice:edit"), handler.Update)
+		g.DELETE("/:id", permMw("system:notice:remove"), handler.Delete)
 	}
 }
 
-// @Summary Get notice list
+// @Summary 获取通知公告列表
 // @Tags system/notice
 // @Accept json
 // @Produce json
@@ -43,9 +41,9 @@ func (h *NoticeHandler) List(c *gin.Context) {
 	response.Success(c, list)
 }
 
-// @Summary Get notice info
+// @Summary 获取通知公告详情
 // @Tags system/notice
-// @Param id path string true "Notice ID"
+// @Param id path string true "公告ID"
 // @Success 200 {object} response.Response
 // @Router /api/v1/system/notice/{id} [get]
 func (h *NoticeHandler) Get(c *gin.Context) {
@@ -58,11 +56,11 @@ func (h *NoticeHandler) Get(c *gin.Context) {
 	response.Success(c, res)
 }
 
-// @Summary Add notice
+// @Summary 新增通知公告
 // @Tags system/notice
 // @Accept json
 // @Produce json
-// @Param notice body entity.Notice true "Notice Info"
+// @Param notice body entity.Notice true "公告信息"
 // @Success 200 {object} response.Response
 // @Router /api/v1/system/notice [post]
 func (h *NoticeHandler) Add(c *gin.Context) {
@@ -79,11 +77,11 @@ func (h *NoticeHandler) Add(c *gin.Context) {
 	response.Success(c, nil)
 }
 
-// @Summary Update notice
+// @Summary 更新通知公告
 // @Tags system/notice
 // @Accept json
 // @Produce json
-// @Param notice body entity.Notice true "Notice Info"
+// @Param notice body entity.Notice true "公告信息"
 // @Success 200 {object} response.Response
 // @Router /api/v1/system/notice [put]
 func (h *NoticeHandler) Update(c *gin.Context) {
@@ -100,9 +98,9 @@ func (h *NoticeHandler) Update(c *gin.Context) {
 	response.Success(c, nil)
 }
 
-// @Summary Delete notice
+// @Summary 删除通知公告
 // @Tags system/notice
-// @Param id path string true "Notice ID"
+// @Param id path string true "公告ID"
 // @Success 200 {object} response.Response
 // @Router /api/v1/system/notice/{id} [delete]
 func (h *NoticeHandler) Delete(c *gin.Context) {

@@ -5,28 +5,28 @@ import (
 	"os"
 )
 
-// LogLevel represents the severity level of a log entry
+// LogLevel 代表日志条目的严重程度
 type LogLevel int
 
 const (
-	// DEBUG is for detailed information, typically of interest only when diagnosing problems
+	// DEBUG 用于详细信息，通常仅在诊断问题时感兴趣
 	DEBUG LogLevel = iota
-	// INFO is for general informational messages
+	// INFO 用于一般信息消息
 	INFO
-	// WARN is for warning messages
+	// WARN 用于警告消息
 	WARN
-	// ERROR is for error messages
+	// ERROR 用于错误消息
 	ERROR
 )
 
-// Logger is a simple structured logger
-// In production, consider using more advanced loggers like zap or zerolog
+// Logger 是一个简单的结构化记录器
+// 在生产环境中，考虑使用更高级的记录器，如 zap 或 zerolog
 type Logger struct {
 	prefix string
 	level  LogLevel
 }
 
-// New creates a new logger with the given prefix
+// New 创建带有给定前缀的新记录器
 func New(prefix string) *Logger {
 	return &Logger{
 		prefix: prefix,
@@ -34,40 +34,40 @@ func New(prefix string) *Logger {
 	}
 }
 
-// SetLevel sets the minimum log level
+// SetLevel 设置最小日志级别
 func (l *Logger) SetLevel(level LogLevel) {
 	l.level = level
 }
 
-// Debug logs a debug message
+// Debug 记录调试消息
 func (l *Logger) Debug(format string, args ...interface{}) {
 	if l.level <= DEBUG {
 		log.Printf("[DEBUG] "+l.prefix+" "+format, args...)
 	}
 }
 
-// Info logs an info message
+// Info 记录信息消息
 func (l *Logger) Info(format string, args ...interface{}) {
 	if l.level <= INFO {
 		log.Printf("[INFO] "+l.prefix+" "+format, args...)
 	}
 }
 
-// Warn logs a warning message
+// Warn 记录警告消息
 func (l *Logger) Warn(format string, args ...interface{}) {
 	if l.level <= WARN {
 		log.Printf("[WARN] "+l.prefix+" "+format, args...)
 	}
 }
 
-// Error logs an error message
+// Error 记录错误消息
 func (l *Logger) Error(format string, args ...interface{}) {
 	if l.level <= ERROR {
 		log.Printf("[ERROR] "+l.prefix+" "+format, args...)
 	}
 }
 
-// With returns a new logger with the given prefix
+// With 返回带有给定前缀的新记录器
 func (l *Logger) With(prefix string) *Logger {
 	return &Logger{
 		prefix: l.prefix + " " + prefix,
@@ -75,43 +75,43 @@ func (l *Logger) With(prefix string) *Logger {
 	}
 }
 
-// Global logger instance
+// 全局记录器实例
 var std = New("")
 
-// SetLevel sets the level for the global logger
+// SetLevel 设置全局记录器的级别
 func SetLevel(level LogLevel) {
 	std.SetLevel(level)
 }
 
-// Debug logs a debug message using the global logger
+// Debug 使用全局记录器记录调试消息
 func Debug(format string, args ...interface{}) {
 	std.Debug(format, args...)
 }
 
-// Info logs an info message using the global logger
+// Info 使用全局记录器记录信息消息
 func Info(format string, args ...interface{}) {
 	std.Info(format, args...)
 }
 
-// Warn logs a warning message using the global logger
+// Warn 使用全局记录器记录警告消息
 func Warn(format string, args ...interface{}) {
 	std.Warn(format, args...)
 }
 
-// Error logs an error message using the global logger
+// Error 使用全局记录器记录错误消息
 func Error(format string, args ...interface{}) {
 	std.Error(format, args...)
 }
 
-// With returns a new logger with the given prefix using the global logger
+// With 使用全局记录器返回带有给定前缀的新记录器
 func With(prefix string) *Logger {
 	return std.With(prefix)
 }
 
-// Init initializes the global logger
+// Init 初始化全局记录器
 func Init() {
-	// Set output to stdout
+	// 设置输出到标准输出
 	log.SetOutput(os.Stdout)
-	// Set flags to include date and time
+	// 设置标志以包含日期和时间
 	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
 }

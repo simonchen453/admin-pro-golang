@@ -52,7 +52,7 @@ func (u *configUsecase) CreateConfig(ctx context.Context, config *entity.Config)
 
 	config.ID = uuid.NewString()
 	config.CreatedDate = time.Now()
-	// Default type? Let's assume N if not provided, or logic in frontend
+	// 默认类型？如果未提供则假定为 N，或在前端逻辑中处理
 	return u.configRepo.Create(ctx, config)
 }
 
